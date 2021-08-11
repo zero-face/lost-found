@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="TUserPermission对象", description="")
+@ApiModel(value="UserPermission对象", description="")
 public class TUserPermission implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -33,7 +33,7 @@ public class TUserPermission implements Serializable {
     private Integer userId;
 
     @TableLogic
-    private Integer isDelete;
+    private Boolean isDelete;
 
 
 }

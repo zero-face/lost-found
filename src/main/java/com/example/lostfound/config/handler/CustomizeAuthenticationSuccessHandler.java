@@ -26,7 +26,7 @@ import java.util.Map;
 @Component
 public class CustomizeAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private int expiredTime = 60 * 60 * 24;
+    private int expiredTime = 60 * 60 * 24; //默认令牌有效期是24小时
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -36,7 +36,7 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         Map<String,Object> map = new HashMap<>();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        System.out.println(authorities);
+        System.out.println(authentication.getDetails());
         if(authorities.toString().contains("ROLE_admin")){
             map.put("role", "admin");
         } else {

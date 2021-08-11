@@ -1,11 +1,10 @@
 package com.example.lostfound.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,7 +20,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="TFoundThing对象", description="")
+@ApiModel(value="FoundThing对象", description="")
 public class TFoundThing implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -35,16 +34,17 @@ public class TFoundThing implements Serializable {
 
     private String address;
 
-    private LocalDateTime loseTime;
+    private Long loseTime;
 
     private String description;
 
     private Integer status;
 
-    private LocalDateTime publishTime;
+    @TableField(fill = FieldFill.INSERT)
+    private Long publishTime;
 
     @TableLogic
-    private Integer isDelete;
+    private Boolean isDelete;
 
     private Integer publishUserId;
 

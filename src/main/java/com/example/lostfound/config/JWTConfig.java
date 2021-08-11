@@ -20,9 +20,7 @@ public class JWTConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtIntercepter)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/api/v1/user/login",
-                        "/swagger-resources/**",
-                        "/webjars/**",
-                        "/v2/**",
+                        "/doc.html","/webjars/**","/img.icons/**","/swagger-resources/**","/**","/v2/api-docs",
                         "/swagger-ui.html",
                         "/error");
     }

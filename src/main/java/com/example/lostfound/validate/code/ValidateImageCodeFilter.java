@@ -1,14 +1,15 @@
 package com.example.lostfound.validate.code;
 
-import com.alibaba.fastjson.JSON;
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import com.example.lostfound.config.handler.CustomizeAuthenticationFailureHandler;
 import com.example.lostfound.constant.RedisCode;
-import com.example.lostfound.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -36,8 +37,11 @@ public class ValidateImageCodeFilter extends OncePerRequestFilter {
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
     @Autowired
-    //自定义验证失败处理器
     private CustomizeAuthenticationFailureHandler customizeAuthenticationFailureHandler;
+    @Value("{md5.key}")
+    private String key;
+    @Autowired
+    private SymmetricCrypto symmetricCrypto;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -49,9 +53,29 @@ public class ValidateImageCodeFilter extends OncePerRequestFilter {
                 customizeAuthenticationFailureHandler.onAuthenticationFailure(request, response, e);
                 return;
             }
+            try {
+                validateParams(new ServletWebRequest(request));
+            } catch (ValidateCodeException e) {
+                customizeAuthenticationFailureHandler.onAuthenticationFailure(request, response, e);
+                return;
+            }
         }
         filterChain.doFilter(request, response);
     }
+
+    private void validateParams(ServletWebRequest servletWebRequest) throws ServletRequestBindingException, ValidateCodeException {
+        String sign = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "sign");
+        String timeStamp = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "timeStamp");
+        String username = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "username");
+        String password = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "password");
+        String data = "usernm=" + username + "pwd=" + password + "timesp=" + timeStamp;
+        String md5 = SecureUtil.md5(data);
+        if(!StringUtils.equals(md5, sign)) {
+            throw new ValidateCodeException("账号或者密码错误");
+        }
+
+    }
+
     private void validateCode(ServletWebRequest servletWebRequest) throws ServletRequestBindingException, ValidateCodeException {
         String usernameInRequest = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "username");
         String codeInRequest = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "imageCode");
