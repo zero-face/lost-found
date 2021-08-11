@@ -35,3 +35,4 @@ application-dev.yml
 application-pro.yml
 application-enc.yml
 MyGenerator.class
+MyGenerator.java
