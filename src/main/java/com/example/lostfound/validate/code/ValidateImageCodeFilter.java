@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -31,8 +32,9 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class ValidateImageCodeFilter extends OncePerRequestFilter {
+
     @Resource
-    private RedisUtil redisUtil;
+    private RedisTemplate<String,Object> redisTemplate;
     @Autowired
     //自定义验证失败处理器
     private CustomizeAuthenticationFailureHandler customizeAuthenticationFailureHandler;
@@ -51,22 +53,22 @@ public class ValidateImageCodeFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
     private void validateCode(ServletWebRequest servletWebRequest) throws ServletRequestBindingException, ValidateCodeException {
-        final ImageCode codeInRedis = (ImageCode)redisUtil.get(RedisCode.IMAGE_CODE.getMsg());
+        String usernameInRequest = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "username");
         String codeInRequest = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "imageCode");
+        final ImageDTO codeInRedis = (ImageDTO)  redisTemplate.opsForValue().get(RedisCode.IMAGE_CODE.getMsg() + usernameInRequest);
         if (StringUtils.isBlank(codeInRequest)) {
             throw new ValidateCodeException("验证码不能为空 ");
         }
         if (codeInRedis == null) {
             throw new ValidateCodeException("验证码不存在！");
         }
-        if (codeInRedis.isExpire()) {
-            redisUtil.delete((String) redisUtil.get(RedisCode.IMAGE_CODE.getMsg()));
+        if (codeInRedis.checkExpire()) {
+            redisTemplate.delete((RedisCode.IMAGE_CODE.getMsg()));
             throw new ValidateCodeException("验证码已过期！");
         }
         if (!StringUtils.equalsIgnoreCase(codeInRedis.getCode(), codeInRequest)) {
             throw new ValidateCodeException("验证码不正确！");
         }
-        redisUtil.delete((String) redisUtil.get(RedisCode.IMAGE_CODE.getMsg()));
+        redisTemplate.delete((RedisCode.IMAGE_CODE.getMsg()));
     }
-
 }

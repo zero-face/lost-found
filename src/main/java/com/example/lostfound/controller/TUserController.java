@@ -7,6 +7,7 @@ import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.utils.*;
 import com.example.lostfound.validate.code.ImageCode;
+import com.example.lostfound.validate.code.ImageDTO;
 import com.example.lostfound.validate.smscode.SmsCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,9 @@ public class TUserController extends BaseController{
     @GetMapping("/image")
     public void getImageCode(@RequestParam("username") String username, HttpServletResponse response) throws IOException {
         final ImageCode imageCode = ImageCodeUtil.createImageCode();
-        redisTemplate.opsForValue().set(RedisCode.IMAGE_CODE.getMsg() + username, imageCode, 120 , TimeUnit.SECONDS);
+        final ImageDTO imageDTO = new ImageDTO(imageCode.getCode(), imageCode.getExpireTime());
+        log.info(imageDTO.toString());
+        redisTemplate.opsForValue().set(RedisCode.IMAGE_CODE.getMsg() + username, imageDTO, 120 , TimeUnit.SECONDS);
         response.setContentType("image/jpeg;charset=utf-8");
         response.setStatus(HttpStatus.OK.value());
         ImageIO.write(imageCode.getImage(), "jpeg", response.getOutputStream());

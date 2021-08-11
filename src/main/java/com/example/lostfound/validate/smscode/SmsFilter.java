@@ -33,8 +33,7 @@ import java.io.IOException;
 public class SmsFilter extends OncePerRequestFilter {
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
-    @Autowired
-    private RedisUtil redisUtil;
+
     @Autowired
     private CustomizeAuthenticationFailureHandler authenticationFailureHandler;
 
@@ -63,13 +62,13 @@ public class SmsFilter extends OncePerRequestFilter {
         if (null == mailCodeInRedis) {
             throw new ValidateCodeException("验证码不存在！");
         }
-        if (mailCodeInRedis.isExpire()) {
-            redisUtil.delete(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
+        if (mailCodeInRedis.checkExpire()) {
+            redisTemplate.delete(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
             throw new ValidateCodeException("验证码已过期！");
         }
         if (!StringUtils.equalsIgnoreCase(mailCodeInRedis.getCode(), mailCodeInRequest)) {
             throw new ValidateCodeException("验证码不正确！");
         }
-        redisUtil.delete(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
+        redisTemplate.delete(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
     }
 }

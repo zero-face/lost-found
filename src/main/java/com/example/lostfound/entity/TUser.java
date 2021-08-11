@@ -27,7 +27,7 @@ public class TUser implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private String nickeName;
+    private String nickName;
 
     private String trueName;
 

@@ -88,8 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling().authenticationEntryPoint(customizeAuthenticationEntryPoint);
         http.authorizeRequests()
             .antMatchers("/api/v1/user/login"
-                    ,"/api/v1/user/mcode","/api/v1/user/image"
-                    ,"/api/v1/user/mail","/api/v1/user/image")
+                    ,"/api/v1/user/mcode","/api/v1/user/mail","/api/v1/user/image")
             .permitAll()
             .anyRequest().authenticated();
         http.logout()
@@ -97,6 +96,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .logoutSuccessHandler(customizeLogoutSuccessHandler)
         .and()
             .formLogin()
+            .loginProcessingUrl("/api/v1/user/login")
             .successHandler(customizeAuthenticationSuccessHandler)
             .failureHandler(customizeAuthenticationFailureHandler)
         .and()

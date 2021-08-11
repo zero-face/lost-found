@@ -1,7 +1,10 @@
 package com.example.lostfound.config.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.lostfound.core.error.BusinessException;
+import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.entity.TUser;
+import com.example.lostfound.mapper.TUserMapper;
 import com.example.lostfound.service.TUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +26,7 @@ import java.util.List;
 @Service
 public class MailDetailService implements UserDetailsService {
     @Autowired
-    TUserService userService;
+    TUserMapper tUserMapper;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if(null == username|| "".equals(username)) {
@@ -31,7 +34,10 @@ public class MailDetailService implements UserDetailsService {
         }
         String mail = username.substring(0,username.indexOf("@"));
         final QueryWrapper<TUser> queryWrapper = new QueryWrapper<TUser>().eq("qq",mail );
-        final TUser user = userService.getOne(queryWrapper);
+        final TUser user = tUserMapper.selectOne(queryWrapper);
+        if(null == user) {
+            throw new UsernameNotFoundException("用户不存在");
+        }
         List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList("user");
         return new User(user.getTrueName(), user.getPassword(), true,true,true,true , auths);
     }

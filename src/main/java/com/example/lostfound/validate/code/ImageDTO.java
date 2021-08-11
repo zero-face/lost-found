@@ -1,55 +1,43 @@
-package com.example.lostfound.validate.smscode;
+package com.example.lostfound.validate.code;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * @Author Zero
- * @Date 2021/7/4 15:23
+ * @Date 2021/8/11 16:40
  * @Since 1.8
  * @Description
  **/
-
-public class SmsCode implements Serializable {
+//@JsonIgnoreProperties({"code","expireTime"})
+public class ImageDTO implements Serializable {
+    //验证码
     private String code;
-
+    //过期时间
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime expireTime;
 
-
-    public SmsCode(String code, int expireIn) {
-        this.code = code;
-        this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
+    public ImageDTO() {
     }
 
-    public SmsCode() {
-    }
-
-    public SmsCode(String code, LocalDateTime expireTime) {
+    public ImageDTO(String code, LocalDateTime expireTime) {
         this.code = code;
         this.expireTime = expireTime;
     }
 
-    boolean checkExpire() {
+    public boolean checkExpire() {
         return LocalDateTime.now().isAfter(expireTime);
     }
 
     public String getCode() {
         return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public LocalDateTime getExpireTime() {
