@@ -1,5 +1,7 @@
 package com.example.lostfound.core.error;
 
+import com.example.lostfound.core.error.CommonError;
+
 /**
  * @author lmwis
  * @description:实现通用错误接口的异常枚举类
@@ -46,6 +48,7 @@ public enum EmBusinessError implements CommonError {
     EMAIL_TEMPLATE_NOT_EXIST(40004, "HTML邮件不存在"),
     EMAIL_SEND_FAILURE(40005, "发送失败"),
     EMAIL_ALREADY_SEND(40006, "邮件已发送"),
+    EMAIL_INVALID_FORMAT(40007,"邮箱格式不正确"),
 
     // 90000 开头为系统认证相关错误
     SERVICE_REQUIRE_AUTHENTICATION(90001,"访问的服务需要身份认证"),
@@ -55,8 +58,10 @@ public enum EmBusinessError implements CommonError {
     FEHEAD_CA_CERTIFICATE_GENERATOR_FAIL(90004,"证书生成失败"),
 
     SERVICE_AUTHENTICATION_ILLEGAL(90005,"用户认证凭据不合法"),
-    SERVICE_AUTHENTICATION_INVALID(90006,"用户认证凭据无效");
-
+    SERVICE_AUTHENTICATION_INVALID(90006,"用户认证凭据无效"),
+    INVALID_CLAIM(90007,"无效的声明"),
+    PREMATURE_JWT(90008,"jwt过早"),
+    SIGNATURE_ERROR(90009,"秘钥错误");
     private EmBusinessError(int errCode, String errMsg) {
         this.errCode = errCode;
         this.errMsg = errMsg;
