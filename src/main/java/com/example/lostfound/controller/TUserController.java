@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +46,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Validated
 public class TUserController extends BaseController{
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -133,7 +137,7 @@ public class TUserController extends BaseController{
         }
         final TUser user = new TUser(){{
             setNickName(username);
-            setPassword(password);
+            setPassword(passwordEncoder.encode(password));
         }};
         boolean save = userService.save(user);
         if(save) {
