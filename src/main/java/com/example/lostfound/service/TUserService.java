@@ -12,5 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2021-08-10
  */
 public interface TUserService extends IService<TUser> {
-
+    Boolean checkUsername(String username);
+    Integer getUserIdByUserName(String username);
+    Boolean modifyUserInfo(TUser user,String oldUsername);
 }

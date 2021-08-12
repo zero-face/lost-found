@@ -1,10 +1,14 @@
 package com.example.lostfound.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.constant.RedisCode;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.core.response.CommonReturnType;
+import com.example.lostfound.entity.TUser;
+import com.example.lostfound.entity.UserVO;
+import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.*;
 import com.example.lostfound.validate.code.ImageCode;
 import com.example.lostfound.validate.code.ImageDTO;
@@ -12,6 +16,7 @@ import com.example.lostfound.validate.smscode.SmsCode;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -46,6 +51,9 @@ public class TUserController extends BaseController{
 
     @Autowired
     private MailUtils mailUtils;
+
+    @Autowired
+    private TUserService userService;
 
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
@@ -82,7 +90,7 @@ public class TUserController extends BaseController{
         response.setStatus(HttpStatus.OK.value());
         ImageIO.write(imageCode.getImage(), "jpeg", response.getOutputStream());
     }
-    //注册、增删改查
+
     @ApiOperation("账户密码登录测试接口")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParams({
@@ -107,5 +115,70 @@ public class TUserController extends BaseController{
     public String testMailLogin() {
         return "success";
     }
+
+    /**
+     * 用户注册
+     * @param username
+     * @param password
+     * @param imageCode
+     * @return
+     */
+    @PostMapping
+    public CommonReturnType registery(@RequestParam("username")@NotBlank String username,
+                                      @RequestParam("password")@NotBlank String password,
+                                      @RequestParam("imageCode")@NotBlank String imageCode) {
+        boolean aBoolean = userService.checkUsername(username);
+        if(!aBoolean) {
+            return CommonReturnType.fail("用户名已存在！","注册存在" );
+        }
+        final TUser user = new TUser(){{
+            setNickName(username);
+            setPassword(password);
+        }};
+        boolean save = userService.save(user);
+        if(save) {
+            log.info("注册成功");
+            return CommonReturnType.success(null,"注册成功");
+        }
+        return CommonReturnType.fail(null,"注册失败");
+    }
+
+    /**
+     * 更改用户信息
+     * @param user
+     * @param oldUsername
+     * @return
+     * @throws BusinessException
+     */
+    @PutMapping
+    public CommonReturnType modifyUserInfo(@RequestBody TUser user,
+                                           @RequestParam("oldUsername")@NotBlank String oldUsername) throws BusinessException {
+        final boolean update = userService.modifyUserInfo(user,oldUsername);
+        if(update) {
+            log.info("修改成功");
+            return CommonReturnType.success(null,"修改成功");
+        } else {
+            log.info("修改失败");
+            return CommonReturnType.fail(null,"修改失败");
+        }
+    }
+
+    /**
+     * 获取用户信息
+     * @param username
+     * @return
+     */
+    @GetMapping
+    public CommonReturnType getUserInfo(@RequestParam("username")@NotBlank String username) {
+        final TUser nick_name = userService.getOne(new QueryWrapper<TUser>().eq("nick_name", username));
+        if(nick_name != null) {
+            UserVO uerVO = new UserVO();
+            BeanUtils.copyProperties(nick_name, uerVO);
+            return  CommonReturnType.success(uerVO,"获取成功");
+        }
+        return CommonReturnType.fail(null,"获取失败");
+    }
+
+
 }
 

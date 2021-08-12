@@ -32,13 +32,26 @@ public class MailDetailService implements UserDetailsService {
         if(null == username|| "".equals(username)) {
             throw new UsernameNotFoundException("用户名不能为空");
         }
-        String mail = username.substring(0,username.indexOf("@"));
-        final QueryWrapper<TUser> queryWrapper = new QueryWrapper<TUser>().eq("qq",mail );
-        final TUser user = tUserMapper.selectOne(queryWrapper);
-        if(null == user) {
-            throw new UsernameNotFoundException("用户不存在");
+        String qq = username.substring(0,username.indexOf("@"));
+        final QueryWrapper<TUser> wrapper = new QueryWrapper<TUser>().eq("qq", qq);
+        final TUser one = tUserMapper.selectOne(wrapper);
+        TUser tUser = null;
+        //没有这个用户就相当于用邮箱注册
+        if(null == one) {
+            tUser = new TUser(){{
+                setNickName(username);
+                setPassword(username);
+                setQq(qq);
+            }};
+            try {
+                tUserMapper.insert(tUser);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            tUser = one;
         }
         List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList("user");
-        return new User(user.getTrueName(), user.getPassword(), true,true,true,true , auths);
+        return new User(tUser.getTrueName(), tUser.getPassword(), true,true,true,true , auths);
     }
 }
