@@ -40,8 +40,8 @@ class LostFoundApplicationTests {
     @Test
     void te() throws IOException {
         final long time = new Date().getTime();
-        String username="test";
-        String password= "chl252599";
+        String username="zero";
+        String password= "";
         String data = "usernm=" + username + "pwd=" + password + "timesp=" + time;
         String md5 = SecureUtil.md5(data);
         System.out.println(time);

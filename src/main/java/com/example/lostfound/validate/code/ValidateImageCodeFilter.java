@@ -73,7 +73,6 @@ public class ValidateImageCodeFilter extends OncePerRequestFilter {
         if(!StringUtils.equals(md5, sign)) {
             throw new ValidateCodeException("账号或者密码错误");
         }
-
     }
 
     private void validateCode(ServletWebRequest servletWebRequest) throws ServletRequestBindingException, ValidateCodeException {

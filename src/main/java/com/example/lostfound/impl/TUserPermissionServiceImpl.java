@@ -1,7 +1,7 @@
 package com.example.lostfound.impl;
 
 import com.example.lostfound.entity.TUserPermission;
-import com.example.lostfound.mapper.TUserPermissionMapper;
+import com.example.lostfound.dao.TUserPermissionMapper;
 import com.example.lostfound.service.TUserPermissionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

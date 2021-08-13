@@ -133,7 +133,11 @@ public class TUserController extends BaseController{
                                       @RequestParam("imageCode")@NotBlank String imageCode) {
         boolean aBoolean = userService.checkUsername(username);
         if(!aBoolean) {
-            return CommonReturnType.fail("用户名已存在！","注册存在" );
+            return CommonReturnType.fail("用户名已存在！","注册失败" );
+        }
+        final Boolean aBoolean1 = userService.checkImageCode(imageCode, username);
+        if(null == aBoolean1 || !aBoolean1) {
+            return CommonReturnType.fail("验证码错误","验证失败");
         }
         final TUser user = new TUser(){{
             setNickName(username);

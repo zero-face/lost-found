@@ -2,6 +2,7 @@ package com.example.lostfound.service;
 
 import com.example.lostfound.entity.TFoundThing;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>

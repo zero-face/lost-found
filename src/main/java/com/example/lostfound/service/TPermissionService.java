@@ -2,6 +2,7 @@ package com.example.lostfound.service;
 
 import com.example.lostfound.entity.TPermission;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author zero
  * @since 2021-08-10
  */
+
 public interface TPermissionService extends IService<TPermission> {
 
 }

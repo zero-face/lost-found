@@ -1,12 +1,16 @@
 package com.example.lostfound.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lostfound.core.response.CommonReturnType;
+import com.example.lostfound.constant.RedisCode;
 import com.example.lostfound.entity.TUser;
-import com.example.lostfound.mapper.TUserMapper;
+import com.example.lostfound.dao.TUserMapper;
 import com.example.lostfound.service.TUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.lostfound.validate.code.ImageDTO;
+import com.example.lostfound.validate.code.ValidateCodeException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +26,8 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
 
     @Autowired
     private TUserMapper userMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
     /**
@@ -36,9 +42,9 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
         }
         final TUser nick_name = userMapper.selectOne(new QueryWrapper<TUser>().eq( "nick_name", username));
         if(null == nick_name) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -69,5 +75,25 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Boolean checkImageCode(String code,String username) {
+        final ImageDTO codeInRedis = (ImageDTO)  redisTemplate.opsForValue().get(RedisCode.IMAGE_CODE.getMsg() + username);
+        if (StringUtils.isBlank(code)) {
+            throw new ValidateCodeException("验证码不能为空 ");
+        }
+        if (codeInRedis == null) {
+            throw new ValidateCodeException("验证码不存在！");
+        }
+        if (codeInRedis.checkExpire()) {
+            redisTemplate.delete((RedisCode.IMAGE_CODE.getMsg()));
+            throw new ValidateCodeException("验证码已过期！");
+        }
+        if (!StringUtils.equalsIgnoreCase(codeInRedis.getCode(), code)) {
+            throw new ValidateCodeException("验证码不正确！");
+        }
+        redisTemplate.delete((RedisCode.IMAGE_CODE.getMsg()));
+        return true;
     }
 }

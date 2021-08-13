@@ -1,7 +1,7 @@
 package com.example.lostfound.impl;
 
 import com.example.lostfound.entity.TPermission;
-import com.example.lostfound.mapper.TPermissionMapper;
+import com.example.lostfound.dao.TPermissionMapper;
 import com.example.lostfound.service.TPermissionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.Date;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -34,19 +35,15 @@ public class TLossThing implements Serializable {
 
     private String address;
 
-    private Long loseTime;
-
     private String description;
 
-    private Integer status;
+    private Boolean status;
 
     @TableField(fill = FieldFill.INSERT)
-    private Long lossTime;
+    private Date lossTime;
 
     @TableLogic
     private Boolean isDelete;
 
     private Integer lossUserId;
-
-
 }

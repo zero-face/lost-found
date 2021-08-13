@@ -82,7 +82,7 @@ public class RedisConfig {
         // 配置序列化（解决乱码的问题）,过期时间600秒
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 //过期时间为一天
-                .entryTtl(Duration.ofSeconds(24*60*60))
+                .entryTtl(Duration.ofSeconds(1*60))
                 //key的序列化方式是string
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
                 //value的序列化方式是Jackson2json

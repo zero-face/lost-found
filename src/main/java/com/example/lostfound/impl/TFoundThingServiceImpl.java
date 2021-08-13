@@ -1,7 +1,7 @@
 package com.example.lostfound.impl;
 
 import com.example.lostfound.entity.TFoundThing;
-import com.example.lostfound.mapper.TFoundThingMapper;
+import com.example.lostfound.dao.TFoundThingMapper;
 import com.example.lostfound.service.TFoundThingService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

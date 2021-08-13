@@ -1,7 +1,12 @@
 package com.example.lostfound.service;
 
+import com.example.lostfound.entity.LossDetailVO;
+import com.example.lostfound.entity.LossThingVO;
 import com.example.lostfound.entity.TLossThing;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -11,6 +16,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author zero
  * @since 2021-08-10
  */
+
 public interface TLossThingService extends IService<TLossThing> {
+    List<TLossThing> getLossBySearchAndTime(String search,Integer time);
+    List<LossThingVO> converToLossVO(List<TLossThing> list);
+    LossDetailVO converTOLossDetailVO(TLossThing loss);
+
 
 }
