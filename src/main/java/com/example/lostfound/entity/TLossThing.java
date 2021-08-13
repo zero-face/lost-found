@@ -46,4 +46,8 @@ public class TLossThing implements Serializable {
     private Boolean isDelete;
 
     private Integer lossUserId;
+
+    private Integer talkNum;
+
+    private Integer type;
 }

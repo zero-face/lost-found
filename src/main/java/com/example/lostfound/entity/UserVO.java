@@ -53,15 +53,6 @@ public class UserVO {
     private String addressUrl;
 
     @ApiModelProperty(value = "上次登录时间")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long lastLoginTime;
 
-    @ApiModelProperty(value = "账户是否可用")
-    private Boolean enable;
-    @ApiModelProperty(value = "账户逻辑删除")
-    @TableLogic
-    private Boolean isDelete;
-
-    @ApiModelProperty(value = "账户openid")
-    private Integer openId;
 }

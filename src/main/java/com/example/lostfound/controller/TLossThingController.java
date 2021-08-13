@@ -7,16 +7,23 @@ import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.LossDetailVO;
 import com.example.lostfound.entity.LossThingVO;
 import com.example.lostfound.entity.TLossThing;
+import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.utils.OSSUtil;
 import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Picture;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.smartcardio.CommandAPDU;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,10 +38,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/lost")
 @Api(tags = "失物模块接口")
-public class TLossThingController {
+@Slf4j
+public class TLossThingController extends BaseController{
 
     @Autowired
     private TLossThingService lossThingService;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private TLossCommontService lossCommontService;
 
     /**
      * 首页的分页查询
@@ -89,17 +101,61 @@ public class TLossThingController {
         return CommonReturnType.fail(null, "查询失败");
     }
 
+    /**
+     * 获取失物详细信息（失物信息，评论区,需要两次分开请求）
+     * @param id 失物id
+     * @return
+     */
     @GetMapping("/detail/{id}")
     public CommonReturnType getDetail(@PathVariable("id")Integer id) {
         final TLossThing byId = lossThingService.getById(id);
         if(byId !=null) {
             final LossDetailVO lossDetailVO = lossThingService.converTOLossDetailVO(byId);
-
-            //评论相关消息
             return CommonReturnType.success(lossDetailVO,"获取成功");
         }
         return CommonReturnType.fail(null, "获取失败");
     }
 
+    /**
+     * 失物发布
+     * @param name
+     * @param picture
+     * @param address
+     * @param type
+     * @param time
+     * @param userId
+     * @param description
+     * @return
+     */
+    @PostMapping("/publoss")
+    public CommonReturnType publishLoss(@RequestParam(value = "name")String name,
+                                        @RequestParam(value = "pic")MultipartFile picture,
+                                        @RequestParam(value = "address")String address,
+                                        @RequestParam(value = "type")Integer type,
+                                        @RequestParam(value = "loseTime",required = false) Date time,
+                                        @RequestParam(value = "userId")Integer userId,
+                                        @RequestParam(value = "des")String description
+                                        ) {
+        //保存图片
+        final String picUrl = lossThingService.uploadImage(picture);
+        if(StringUtils.isEmpty(picUrl)) {
+            log.info("图片上传失败");
+            return CommonReturnType.fail(null, "图片上传失败");
+        }
+        final TLossThing tLossThing = new TLossThing() {{
+            setName(name);
+            setAddress(address);
+            setDescription(description);
+            setLossUserId(userId);
+            setLossTime(time);
+            setType(type);
+        }};
+        final boolean save = lossThingService.save(tLossThing);
+        if(save) {
+            redisTemplate.opsForValue().set("LOSS_COMMENT_", 0);
+            return CommonReturnType.success(null,"发布成功");
+        }
+        return CommonReturnType.fail(null,"发布失败");
+    }
 }
 

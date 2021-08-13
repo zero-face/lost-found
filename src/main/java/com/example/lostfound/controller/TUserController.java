@@ -16,6 +16,7 @@ import com.example.lostfound.validate.smscode.SmsCode;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -177,16 +178,19 @@ public class TUserController extends BaseController{
      * @return
      */
     @GetMapping
-    public CommonReturnType getUserInfo(@RequestParam("username")@NotBlank String username) {
-        final TUser nick_name = userService.getOne(new QueryWrapper<TUser>().eq("nick_name", username));
-        if(nick_name != null) {
+    public CommonReturnType getUserInfo(@RequestParam(value = "username",required = false) String username,
+                                        @RequestParam(value = "id",required = false) Integer id) {
+        if(StringUtils.isEmpty(username) && null == id) {
+            return CommonReturnType.fail(null, "参数错误");
+        }
+
+        final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(username, id);
+        if(userInfoByNameOrId != null) {
             UserVO uerVO = new UserVO();
-            BeanUtils.copyProperties(nick_name, uerVO);
+            BeanUtils.copyProperties(userInfoByNameOrId, uerVO);
             return  CommonReturnType.success(uerVO,"获取成功");
         }
         return CommonReturnType.fail(null,"获取失败");
     }
-
-
 }
 

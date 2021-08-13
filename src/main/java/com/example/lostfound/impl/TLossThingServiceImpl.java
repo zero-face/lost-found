@@ -6,13 +6,18 @@ import com.example.lostfound.entity.LossDetailVO;
 import com.example.lostfound.entity.LossThingVO;
 import com.example.lostfound.entity.TLossThing;
 
+import com.example.lostfound.entity.TUser;
+import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.lostfound.service.TUserService;
+import com.example.lostfound.utils.OSSUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +35,12 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
 
     @Autowired
     private TLossThingMapper lossThingMapper;
+    @Autowired
+    private OSSUtil ossUtil;
+    @Autowired
+    private TLossCommontService lossCommontService;
+    @Autowired
+    private TUserService userService;
 
     @Override
     @CachePut(value = "redisCache",key = "'RedisLose' + #search")
@@ -55,6 +66,23 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         }
         final LossDetailVO lossDetailVO = new LossDetailVO();
         BeanUtils.copyProperties(loss,lossDetailVO);
+        //评论量
+        final Long commentNum = lossCommontService.getCommentNum(loss.getId());
+        final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, loss.getLossUserId());
+        lossDetailVO.setNickName(userInfoByNameOrId.getNickName());
+        lossDetailVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
         return lossDetailVO;
+    }
+
+    @Override
+    public String uploadImage(MultipartFile file) {
+        if(null == file) {
+            return null;
+        }
+        final String s = ossUtil.uploadImg(file);
+        if(s != null) {
+            return s;
+        }
+        return null;
     }
 }

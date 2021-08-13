@@ -5,36 +5,32 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * @Author Zero
- * @Date 2021/8/13 19:24
+ * @Date 2021/8/13 22:32
  * @Since 1.8
  * @Description
  **/
 @Data
-public class LossDetailVO {
+public class LossCommentVO {
+
     private Integer id;
 
-    private String name;
+    private String commont;
 
-    private String pictureUrl;
+    private String type;
 
-    private String address;
+    private Integer fatherId;
 
-    private String description;
+    private Integer userId;
 
-    private Boolean status;
+    private Integer lostThingId;
 
-    private Date lossTime;
-
-    private Integer lossUserId;
-
-    private Long commentNum;
+    private Long likes;
 
     private String nickName;
 
     private String addressUrl;
+
 
 }

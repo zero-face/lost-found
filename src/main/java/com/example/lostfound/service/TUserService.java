@@ -16,4 +16,6 @@ public interface TUserService extends IService<TUser> {
     Integer getUserIdByUserName(String username);
     Boolean modifyUserInfo(TUser user,String oldUsername);
     Boolean checkImageCode(String code,String username);
+
+    TUser getUserInfoByNameOrId(String username,Integer id);
 }

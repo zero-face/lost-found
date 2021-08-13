@@ -5,6 +5,7 @@ import com.example.lostfound.entity.LossThingVO;
 import com.example.lostfound.entity.TLossThing;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public interface TLossThingService extends IService<TLossThing> {
     List<TLossThing> getLossBySearchAndTime(String search,Integer time);
     List<LossThingVO> converToLossVO(List<TLossThing> list);
     LossDetailVO converTOLossDetailVO(TLossThing loss);
+    String uploadImage(MultipartFile file);
 
 
 }

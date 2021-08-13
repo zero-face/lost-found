@@ -33,7 +33,7 @@ public class TLossCommont implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private Long time;
 
-    private Integer type;
+    private String type;
 
     @TableLogic
     private Boolean isDelete;
@@ -43,6 +43,8 @@ public class TLossCommont implements Serializable {
     private Integer userId;
 
     private Integer lostThingId;
+
+    private Integer likes;
 
 
 }

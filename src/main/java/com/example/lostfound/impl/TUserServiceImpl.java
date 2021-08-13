@@ -96,4 +96,10 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
         redisTemplate.delete((RedisCode.IMAGE_CODE.getMsg()));
         return true;
     }
+
+    @Override
+    public TUser getUserInfoByNameOrId(String username, Integer id) {
+        final TUser nick_name = userMapper.selectOne(new QueryWrapper<TUser>().eq(id != null,"id", id).eq(username!=null, "nick_name",username));
+        return nick_name;
+    }
 }
