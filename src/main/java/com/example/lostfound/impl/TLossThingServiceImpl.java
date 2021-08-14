@@ -104,11 +104,12 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         final TLossThing lossThing = lossThingMapper.selectOne(new QueryWrapper<TLossThing>().eq("id", lossId));
         final TUser id1 = userService.getOne(new QueryWrapper<TUser>().eq("id", userId));
         AuditVO auditVO = new AuditVO(){{
-            setAddressUrl(id1.getAddressUrl());
-            setLossName(lossThing.getName());
-            setPicUrl(lossThing.getPictureUrl());
-            setNickName(id1.getNickName());
-            setId(id); //设置请求id
+            setAddressUrl(id1.getAddressUrl()); //申请人头像
+            setLossName(lossThing.getName()); //申请认领物品
+            setPicUrl(lossThing.getPictureUrl()); //认领物品图片
+            setNickName(id1.getNickName()); //申请人姓名
+            setId(id); //设置请求信息id
+            setApplyId(userId); //申请人id
         }};
         return auditVO;
     }

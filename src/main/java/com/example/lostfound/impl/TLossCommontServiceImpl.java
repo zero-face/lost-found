@@ -65,7 +65,7 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
      */
     @Override
     public List<TLossCommont> getAllComment(Integer lossId) {
-        final List<TLossCommont> tLossCommonts = lossCommontMapper.selectList(new QueryWrapper<TLossCommont>().select("id", "commont", "type", "father_id", "user_id","lost_thing_id","father_id").eq("lost_thing_id", lossId));
+        final List<TLossCommont> tLossCommonts = lossCommontMapper.selectList(new QueryWrapper<TLossCommont>().select("id", "commont", "type", "father_id", "user_id","lost_thing_id","father_id").eq("lost_thing_id", lossId).eq("status", 0));
         return tLossCommonts;
     }
 

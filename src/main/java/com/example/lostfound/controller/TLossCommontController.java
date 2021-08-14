@@ -32,7 +32,7 @@ import java.util.List;
 @RequestMapping("/api/v1/lcompoment")
 @Api(tags = "失物评论接口")
 @Validated
-public class TLossCommontController {
+public class TLossCommontController extends BaseController{
 
     @Autowired
     private TLossCommontService lossCommontService;

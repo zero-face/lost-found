@@ -33,9 +33,25 @@ public class NotifyUtil {
     private String key;
     Boolean flag = false;
     public boolean publish (String content,String channel) {
-        log.info(key);
+
         GoEasy goEasy = new GoEasy("http://rest-hangzhou.goeasy.io",key);
         goEasy.publish(channel, content,new PublishListener() {
+            @Override
+            public void onFailed(GoEasyError error) {
+                log.info("消息推送失败：{}", error.getContent());
+            }
+            @Override
+            public void onSuccess() {
+                log.info("消息推送成功", content);
+                flag = true;
+            }
+        });
+        return flag;
+    }
+    public boolean publish (String content,String channel,String mesId) {
+
+        GoEasy goEasy = new GoEasy("http://rest-hangzhou.goeasy.io",key);
+        goEasy.publish(mesId,channel,content,new PublishListener() {
             @Override
             public void onFailed(GoEasyError error) {
                 log.info("消息推送失败：{}", error.getContent());

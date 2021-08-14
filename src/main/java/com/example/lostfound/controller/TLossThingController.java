@@ -66,7 +66,7 @@ public class TLossThingController extends BaseController{
     public CommonReturnType getAllLost(@PathVariable("pn")Integer pn) {
         //查询第pn，每页5条，不查询数据总数
         final Page<TLossThing> page = new Page<>(pn, 5,false);
-        final Page<TLossThing> lossThingPage = lossThingService.page(page);
+        final Page<TLossThing> lossThingPage = lossThingService.page(page,new QueryWrapper<TLossThing>().eq("status", 0));
         final List<TLossThing> records = lossThingPage.getRecords();
         if(records != null || records.size() > 0) {
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(records);
@@ -116,7 +116,7 @@ public class TLossThingController extends BaseController{
      */
     @GetMapping("/detail/{id}")
     public CommonReturnType getDetail(@PathVariable("id")Integer id) {
-        final TLossThing byId = lossThingService.getById(id);
+        final TLossThing byId = lossThingService.getOne(new QueryWrapper<TLossThing>().eq(true, "status", 0).eq("id",id));
         if(byId !=null) {
             final LossDetailVO lossDetailVO = lossThingService.converTOLossDetailVO(byId);
             return CommonReturnType.success(lossDetailVO,"获取成功");

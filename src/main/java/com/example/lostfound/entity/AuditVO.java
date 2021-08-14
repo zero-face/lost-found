@@ -25,4 +25,8 @@ public class AuditVO {
     private String lossName;
 
     private String picUrl;
+
+    private Integer adminId;
+
+    private Integer applyId;
 }

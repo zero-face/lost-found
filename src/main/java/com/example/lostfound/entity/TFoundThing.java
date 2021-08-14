@@ -48,5 +48,7 @@ public class TFoundThing implements Serializable {
 
     private Integer publishUserId;
 
+    private String type;
+
 
 }
