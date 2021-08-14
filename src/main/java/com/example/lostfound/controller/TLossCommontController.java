@@ -36,20 +36,26 @@ public class TLossCommontController {
 
     @Autowired
     private TLossCommontService lossCommontService;
-    @Autowired
-    private RedisTemplate redisTemplate;
 
 
+    /**
+     * 发布评论
+     * @param comment
+     * @param lossId
+     * @param userId
+     * @param type
+     * @param fatherId
+     * @return
+     */
     @GetMapping("/pubcomment")
     public CommonReturnType getCompoment(@RequestParam(value = "com")@NotBlank String comment,
                                          @RequestParam(value = "lossId")Integer lossId,
                                          @RequestParam(value = "userId")Integer userId,
                                          @RequestParam(value = "type")String type,
-                                         @RequestParam(value = "fatherId",required = false)Integer fatherId,
-                                         @RequestParam(value = "likes",required = false)Integer likes){
+                                         @RequestParam(value = "fatherId",required = false)Integer fatherId
+                                         ){
         TLossCommont lossCommont = new TLossCommont() {{
             setCommont(comment);
-            setLikes(likes);
             setType(type);
             setUserId(userId);
             setFatherId(fatherId);
@@ -76,8 +82,10 @@ public class TLossCommontController {
      */
     @GetMapping
     public CommonReturnType getAllComments(@RequestParam("id") Integer id) {
+        //获取所有评论
         final List<TLossCommont> allComment = lossCommontService.getAllComment(id);
         if(null != allComment && allComment.size() > 0) {
+            //转换包装评论
             final List<LossCommentVO> lossCommentVOS = lossCommontService.convertToCommentVO(allComment);
             return CommonReturnType.success(lossCommentVOS,"获取成功");
         }
@@ -85,6 +93,12 @@ public class TLossCommontController {
 
     }
 
+    /**
+     * 评论点赞
+     * @param lossId
+     * @param mesId
+     * @return
+     */
     @GetMapping("/like")
     public CommonReturnType like(@RequestParam("lossId")Integer lossId,
                                  @RequestParam("mesId")Integer mesId) {

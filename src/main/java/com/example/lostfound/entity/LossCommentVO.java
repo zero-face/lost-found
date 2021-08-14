@@ -26,7 +26,7 @@ public class LossCommentVO {
 
     private Integer lostThingId;
 
-    private Long likes;
+    private Integer likes;
 
     private String nickName;
 

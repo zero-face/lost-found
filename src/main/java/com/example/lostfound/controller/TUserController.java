@@ -192,5 +192,27 @@ public class TUserController extends BaseController{
         }
         return CommonReturnType.fail(null,"获取失败");
     }
+
+    /**
+     * 实名认证
+     * @param user
+     * @return
+     */
+    @PostMapping("/auth")
+    public CommonReturnType realNameAuthentication(@RequestBody TUser user) {
+        userService.update(user, new QueryWrapper<TUser>().eq("nick_name", user.getNickName()));
+        return CommonReturnType.success(null,"认证成功");
+    }
+
+    @GetMapping("/info")
+    public CommonReturnType getUserInfo(@RequestParam("username")String username) {
+        final TUser nick_name = userService.getOne(new QueryWrapper<TUser>().eq("nick_name", username));
+        if(null == nick_name) {
+            return CommonReturnType.fail(null, "获取失败");
+        }
+        final UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(nick_name, userVO);
+        return CommonReturnType.success(userVO,"获取成功");
+    }
 }
 

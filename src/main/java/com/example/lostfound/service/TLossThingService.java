@@ -1,5 +1,6 @@
 package com.example.lostfound.service;
 
+import com.example.lostfound.entity.AuditVO;
 import com.example.lostfound.entity.LossDetailVO;
 import com.example.lostfound.entity.LossThingVO;
 import com.example.lostfound.entity.TLossThing;
@@ -23,6 +24,6 @@ public interface TLossThingService extends IService<TLossThing> {
     List<LossThingVO> converToLossVO(List<TLossThing> list);
     LossDetailVO converTOLossDetailVO(TLossThing loss);
     String uploadImage(MultipartFile file);
-
+    AuditVO packageNotifyMes(Integer id,Integer userId,Integer lossId);
 
 }

@@ -44,7 +44,4 @@ public class TLossCommont implements Serializable {
 
     private Integer lostThingId;
 
-    private Integer likes;
-
-
 }

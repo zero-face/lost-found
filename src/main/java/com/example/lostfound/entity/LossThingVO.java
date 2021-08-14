@@ -28,4 +28,7 @@ public class LossThingVO {
     private Date lossTime;
 
     private Integer lossUserId;
+
+    private String type;
+
 }

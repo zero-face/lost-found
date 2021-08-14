@@ -1,18 +1,21 @@
 package com.example.lostfound.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.lostfound.core.response.CommonReturnType;
-import com.example.lostfound.entity.LossDetailVO;
-import com.example.lostfound.entity.LossThingVO;
-import com.example.lostfound.entity.TLossThing;
+import com.example.lostfound.entity.*;
+import com.example.lostfound.service.TAdminAuditService;
 import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.service.TUserService;
+import com.example.lostfound.utils.NotifyUtil;
 import com.example.lostfound.utils.OSSUtil;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Update;
 import org.apache.poi.ss.usermodel.Picture;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +49,12 @@ public class TLossThingController extends BaseController{
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
-    private TLossCommontService lossCommontService;
+    private TAdminAuditService adminAuditService;
+    @Autowired
+    private NotifyUtil notifyUtil;
+    @Autowired
+    private TUserService userService;
+
 
     /**
      * 首页的分页查询
@@ -149,13 +157,41 @@ public class TLossThingController extends BaseController{
             setLossUserId(userId);
             setLossTime(time);
             setType(type);
+            setPictureUrl(picUrl);
         }};
         final boolean save = lossThingService.save(tLossThing);
         if(save) {
-            redisTemplate.opsForValue().set("LOSS_COMMENT_", 0);
+            redisTemplate.opsForValue().set("LOSS_COMMENT_" + tLossThing.getId(), 0);
             return CommonReturnType.success(null,"发布成功");
         }
         return CommonReturnType.fail(null,"发布失败");
+    }
+
+    /**
+     * 申请认领
+     * @param lossId
+     * @param userId
+     * @return
+     */
+    @GetMapping("/claim")
+    public CommonReturnType claim(@RequestParam("lossId")Integer lossId,
+                                  @RequestParam("userId")Integer userId
+                                  ) {
+        //构建一条审核信息
+        final TAdminAudit tAdminAudit = new TAdminAudit() {{
+            setLossId(lossId);
+            setUserId(userId);
+        }};
+        //存入数据库
+        adminAuditService.save(tAdminAudit);
+        //实时通知后台，goeasy
+        final AuditVO auditVO = lossThingService.packageNotifyMes(tAdminAudit.getId(),userId, lossId);
+        final boolean publish = notifyUtil.publish(JSON.toJSONString(auditVO),"user_notify_admin");
+        if(publish) {
+
+            return CommonReturnType.success(tAdminAudit,"申请成功");
+        }
+        return CommonReturnType.fail(null,"申请失败");
     }
 }
 

@@ -18,9 +18,9 @@ import java.util.List;
 
 public interface TLossCommontService extends IService<TLossCommont> {
     Long addCommentNum(Integer lossId);
-    Long getCommentNum(Integer lossId);
+    Integer getCommentNum(Integer lossId);
     List<TLossCommont> getAllComment(Integer lossId);
-    Long getLikeNum(Integer mesId,Integer lossId);
+    Integer getLikeNum(Integer mesId,Integer lossId);
     void setLikes(Integer mesId,Integer lossId);
     Long addCommentLikeNums(Integer lossId,Integer mesId);
     List<LossCommentVO> convertToCommentVO(List<TLossCommont> lossCommonts);

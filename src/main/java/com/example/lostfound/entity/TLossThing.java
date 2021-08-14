@@ -47,7 +47,5 @@ public class TLossThing implements Serializable {
 
     private Integer lossUserId;
 
-    private Integer talkNum;
-
     private Integer type;
 }

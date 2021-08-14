@@ -31,10 +31,12 @@ public class LossDetailVO {
 
     private Integer lossUserId;
 
-    private Long commentNum;
+    private Integer commentNum;
 
     private String nickName;
 
     private String addressUrl;
+
+    private String type;
 
 }

@@ -21,6 +21,7 @@ public class CustomMetaObjectHandler implements MetaObjectHandler {
         this.setFieldValByName("foundTime", System.currentTimeMillis(), metaObject);
         this.setFieldValByName("lossTime", new Date(), metaObject);
         this.setFieldValByName("lastLoginTime", System.currentTimeMillis(), metaObject);
+        this.setFieldValByName("submitTime", System.currentTimeMillis(), metaObject);
     }
     @Override
     public void updateFill(MetaObject metaObject) {

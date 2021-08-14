@@ -52,8 +52,10 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
      * @return
      */
     @Override
-    public Long getCommentNum(Integer lossId) {
-        return (Long) redisTemplate.opsForValue().get("LOSS_COMMENT_" + lossId);
+    public Integer getCommentNum(Integer lossId) {
+        final Integer o = (Integer)redisTemplate.opsForValue().get("LOSS_COMMENT_" + lossId);
+
+        return o;
     }
 
     /**
@@ -63,7 +65,7 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
      */
     @Override
     public List<TLossCommont> getAllComment(Integer lossId) {
-        final List<TLossCommont> tLossCommonts = lossCommontMapper.selectList(new QueryWrapper<TLossCommont>().select("id", "commont", "type", "father_id", "user_id").eq("lost_thing_id", lossId));
+        final List<TLossCommont> tLossCommonts = lossCommontMapper.selectList(new QueryWrapper<TLossCommont>().select("id", "commont", "type", "father_id", "user_id","lost_thing_id","father_id").eq("lost_thing_id", lossId));
         return tLossCommonts;
     }
 
@@ -73,8 +75,8 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
      * @return
      */
     @Override
-    public Long getLikeNum(Integer mesId,Integer lossId) {
-        final Long o = (Long)redisTemplate.opsForHash().get("LOSS_LIKE_" + lossId, "MES_ID_" + mesId);
+    public Integer getLikeNum(Integer mesId,Integer lossId) {
+        final Integer o = (Integer)redisTemplate.opsForHash().get("LOSS_LIKE_" + lossId, "MES_ID_" + mesId);
         return o;
     }
 
@@ -103,10 +105,15 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
     public List<LossCommentVO> convertToCommentVO(List<TLossCommont> lossCommonts) {
         final List<LossCommentVO> lossCommentVOS = lossCommonts.stream().map(comment -> {
             final LossCommentVO lossCommentVO = new LossCommentVO();
+            //复制
             BeanUtils.copyProperties(comment, lossCommentVO);
+            //设置点赞量
             lossCommentVO.setLikes(getLikeNum(comment.getId(), comment.getLostThingId()));
             final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, comment.getUserId());
+            //设置头像地址
             lossCommentVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
+            //设置昵称
+            lossCommentVO.setNickName(userInfoByNameOrId.getNickName());
             return lossCommentVO;
         }).collect(Collectors.toList());
         return lossCommentVOS;
