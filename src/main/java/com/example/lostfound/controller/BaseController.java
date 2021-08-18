@@ -57,7 +57,7 @@ public class BaseController {
                     , ex.getMessage());
         }
         logger.error("{"+responseData.toString()+"}");
-        return CommonReturnType.create(responseData, "fail");
+        return CommonReturnType.fail(responseData, "请求失败");
     }
 
     protected ErrorMsgType packErrorCommonReturnType(int errorCode, String errorMsg){

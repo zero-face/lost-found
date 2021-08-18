@@ -37,11 +37,6 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
         Map<String,Object> map = new HashMap<>();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         System.out.println(authentication.getDetails());
-        if(authorities.toString().contains("ROLE_admin")){
-            map.put("role", "admin");
-        } else {
-            map.put("role", "user");
-        }
         map.put("username", ((User)authentication.getPrincipal()).getUsername());
         String token = jwtTokenUtil.generateToken(map, ((User)authentication.getPrincipal()).getUsername(), expiredTime * 1000);
         Map<String,Object> returnToken = new HashMap<>();

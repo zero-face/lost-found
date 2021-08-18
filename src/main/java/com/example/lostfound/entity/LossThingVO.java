@@ -30,5 +30,5 @@ public class LossThingVO {
     private Integer lossUserId;
 
     private String type;
-
+    private String description;
 }

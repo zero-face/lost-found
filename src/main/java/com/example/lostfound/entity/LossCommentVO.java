@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author Zero
  * @Date 2021/8/13 22:32
@@ -31,6 +33,10 @@ public class LossCommentVO {
     private String nickName;
 
     private String addressUrl;
+
+    private List<LossCommentVO> son;
+
+
 
 
 }

@@ -71,4 +71,21 @@ public class JwtTokenUtil {
                 .setSigningKey(key)
                 .parseClaimsJws(jwt).getBody();
     }
+
+    /**
+     * 检验jwt是否过期
+     * @param jwt
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public Boolean checkIsExpired(String jwt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        PublicKey key = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey)));
+        final Date expiration = Jwts.parser().setSigningKey(key)
+                .parseClaimsJws(jwt).getBody().getExpiration();
+        if(expiration.before(new Date())) {
+            return true;
+        }
+        return false;
+    }
 }
