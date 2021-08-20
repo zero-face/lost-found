@@ -1,6 +1,7 @@
 package com.example.lostfound.service;
 
 import com.example.lostfound.entity.LossCommentVO;
+import com.example.lostfound.entity.LossLikesVO;
 import com.example.lostfound.entity.TLossCommont;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,13 @@ import java.util.List;
 
 public interface TLossCommontService extends IService<TLossCommont> {
     Long addCommentNum(Integer lossId);
+    Long deleteCommentNum(Integer lossId);
     Integer getCommentNum(Integer lossId);
-    List<TLossCommont> getAllComment(Integer lossId);
+    List<LossCommentVO> getAllComment(Integer lossId);
     Integer getLikeNum(Integer mesId,Integer lossId);
     void setLikes(Integer mesId,Integer lossId);
     Long addCommentLikeNums(Integer lossId,Integer mesId);
+    Long deleteCommentLikeNums(Integer lossId,Integer mesId);
     List<LossCommentVO> convertToCommentVO(List<TLossCommont> lossCommonts);
+    List<LossLikesVO> convertToLikesVO(List<Integer> list, Integer lossId);
 }

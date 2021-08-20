@@ -111,7 +111,7 @@ public class TFoundThingController extends BaseController{
     }
 
     /**
-     * 按类型查找失物
+     * 按类型查找寻物
      * @param type
      * @return
      */

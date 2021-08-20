@@ -12,6 +12,7 @@ import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.NotifyUtil;
 import com.example.lostfound.utils.OSSUtil;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,10 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.smartcardio.CommandAPDU;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,8 +60,29 @@ public class TLossThingController extends BaseController{
     private NotifyUtil notifyUtil;
     @Autowired
     private TUserService userService;
+    @Autowired
+    private TLossCommontService lossCommontService;
 
+    /**
+     * 拿出重要数据轮播展示
+     * @return
+     */
+    @GetMapping("/all")
+    public CommonReturnType getAll() {
+        final ArrayList<Integer> integers = new ArrayList<Integer>(){{
+            add(1);
+            add(2);
+            add(7);
+        }};
+        //final List<TLossCommont> list1 = lossCommontService.list(new QueryWrapper<TLossCommont>().select("loss_thing_id").groupBy("loss_thing_id"));
 
+        final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>().eq(true, "status", 0).isNotNull("picture_url").in("type",integers).last("limit 5"));
+        if(null == list || list.size() < 1) {
+            return CommonReturnType.fail(null,"获取失败");
+        }
+        final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(list);
+        return CommonReturnType.success(lossThingVOS,"获取成功");
+    }
     /**
      * 首页的分页查询
      * @param pn
@@ -77,13 +104,29 @@ public class TLossThingController extends BaseController{
     }
 
     /**
+     * 获取所有数据
+     * @return
+     */
+    @GetMapping("/list")
+    public CommonReturnType getList() {
+        //查询第pn，每页5条，不查询数据总数
+        final List<TLossThing> lossThingPage = lossThingService.list(new QueryWrapper<TLossThing>().eq("status", 0));
+        if(lossThingPage != null || lossThingPage.size() > 0) {
+            final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(lossThingPage);
+            return CommonReturnType.success(lossThingVOS,"查询成功");
+        }
+        return CommonReturnType.fail(null, "查询失败");
+
+    }
+
+    /**
      * 失物分类型展示
      * @param type
      * @return
      */
     @GetMapping("/type/{type}")
     @CachePut(value = "redisCache",key = "'RedisLose'+ #type",condition = "#result!=null")
-    public CommonReturnType getLostByType(@PathVariable("type")String type) {
+    public CommonReturnType getLostByType(@PathVariable("type")Integer type) {
         final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>().eq("type", type).eq("status", 0));
         if(list == null || list.size() == 0) {
             return CommonReturnType.fail(null,"没有该类型的失物");
@@ -101,6 +144,9 @@ public class TLossThingController extends BaseController{
     @GetMapping
     public CommonReturnType getByFeature(@RequestParam(value = "s",required = true)String search,
                                          @RequestParam(value = "time",required = false)Integer time) {
+        if(search==null ||search.trim() =="") {
+            return CommonReturnType.fail("查询条件为空", "查询失败");
+        }
         final List<TLossThing> lossBySearchAndTime = lossThingService.getLossBySearchAndTime(search, time);
         if (lossBySearchAndTime != null && lossBySearchAndTime.size() > 0) {
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(lossBySearchAndTime);
@@ -124,6 +170,16 @@ public class TLossThingController extends BaseController{
         return CommonReturnType.fail(null, "获取失败");
     }
 
+    @RequestMapping ("/upload")
+    public CommonReturnType uploadFile(@NotNull MultipartFile picture, HttpServletRequest request) {
+        log.info("收到上传的图片");
+        final String picUrl = lossThingService.uploadImage(picture);
+        if(StringUtils.isEmpty(picUrl)) {
+            log.info("图片上传失败");
+            return CommonReturnType.fail(null, "图片上传失败");
+        }
+        return CommonReturnType.success(picUrl,"上传成功");
+    }
     /**
      * 失物发布
      * @param name
@@ -135,21 +191,22 @@ public class TLossThingController extends BaseController{
      * @param description
      * @return
      */
-    @PostMapping("/publoss")
+    @JsonFormat
+    @RequestMapping ("/publoss")
     public CommonReturnType publishLoss(@RequestParam(value = "name")String name,
-                                        @RequestParam(value = "pic")MultipartFile picture,
+                                        @RequestParam(value = "pic",required = false)String picture,
                                         @RequestParam(value = "address")String address,
                                         @RequestParam(value = "type")Integer type,
-                                        @RequestParam(value = "loseTime",required = false) Date time,
+                                        @RequestParam(value = "loseTime",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8") Date time,
                                         @RequestParam(value = "userId")Integer userId,
                                         @RequestParam(value = "des")String description
                                         ) {
-        //保存图片
-        final String picUrl = lossThingService.uploadImage(picture);
-        if(StringUtils.isEmpty(picUrl)) {
-            log.info("图片上传失败");
-            return CommonReturnType.fail(null, "图片上传失败");
-        }
+//        //保存图片
+//        final String picUrl = lossThingService.uploadImage(picture);
+//        if(StringUtils.isEmpty(picUrl)) {
+//            log.info("图片上传失败");
+//            return CommonReturnType.fail(null, "图片上传失败");
+//        }/**/
         final TLossThing tLossThing = new TLossThing() {{
             setName(name);
             setAddress(address);
@@ -157,7 +214,7 @@ public class TLossThingController extends BaseController{
             setLossUserId(userId);
             setLossTime(time);
             setType(type);
-            setPictureUrl(picUrl);
+            setPictureUrl(picture);
         }};
         final boolean save = lossThingService.save(tLossThing);
         if(save) {
@@ -188,7 +245,6 @@ public class TLossThingController extends BaseController{
         final AuditVO auditVO = lossThingService.packageNotifyMes(tAdminAudit.getId(),userId, lossId);
         final boolean publish = notifyUtil.publish(JSON.toJSONString(auditVO),"user_notify_admin");
         if(publish) {
-
             return CommonReturnType.success(tAdminAudit,"申请成功");
         }
         return CommonReturnType.fail(null,"申请失败");

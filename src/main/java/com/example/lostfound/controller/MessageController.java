@@ -47,6 +47,5 @@ public class MessageController {
         maps.put("username", froms.getNickName());
         maps.put("address", froms.getAddressUrl());
         return CommonReturnType.success(maps,"获取成功");
-
     }
 }

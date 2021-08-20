@@ -31,6 +31,8 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotBlank;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,6 +51,9 @@ import java.util.concurrent.TimeUnit;
 public class TUserController extends BaseController{
 
     @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -63,7 +68,7 @@ public class TUserController extends BaseController{
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParam(name = "mail", value = "邮箱" , required = true, paramType = "query", dataType = "String")
-    @GetMapping("mcode")
+    @GetMapping("/mcode")
     public CommonReturnType mail(@RequestParam("mail") @NotBlank String mail) throws MessagingException, BusinessException {
         if(!CheckEmailAndTelphoneUtil.checkEmail(mail)) {
             throw new BusinessException(EmBusinessError.EMAIL_INVALID_FORMAT);
@@ -142,6 +147,7 @@ public class TUserController extends BaseController{
         }
         final TUser user = new TUser(){{
             setNickName(username);
+            setAddressUrl("https://tse4-mm.cn.bing.net/th/id/OIP-C.l5oteGIsGxT9JvLDC2rC2gHaKL?w=200&h=275&c=7&o=5&dpr=1.12&pid=1.7");
             setPassword(passwordEncoder.encode(password));
         }};
         boolean save = userService.save(user);
@@ -173,7 +179,7 @@ public class TUserController extends BaseController{
     }
 
     /**
-     * 获取用户信息
+     * 获取用户信息（根据user或者userid 都可以）
      * @param username
      * @return
      */
@@ -204,6 +210,11 @@ public class TUserController extends BaseController{
         return CommonReturnType.success(null,"认证成功");
     }
 
+    /**
+     * 根据名字拿到信息（多余）
+     * @param username
+     * @return
+     */
     @GetMapping("/info")
     public CommonReturnType getUserInfo(@RequestParam("username")String username) {
         final TUser nick_name = userService.getOne(new QueryWrapper<TUser>().eq("nick_name", username));
@@ -213,6 +224,18 @@ public class TUserController extends BaseController{
         final UserVO userVO = new UserVO();
         BeanUtils.copyProperties(nick_name, userVO);
         return CommonReturnType.success(userVO,"获取成功");
+    }
+
+    @GetMapping("/check")
+    public CommonReturnType checkJWT(@RequestParam("token")String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        if(null == token) {
+            return CommonReturnType.fail(null,"检验失败");
+        }
+        final Boolean aBoolean = jwtTokenUtil.checkIsExpired(token);
+        if(aBoolean) {
+            return CommonReturnType.fail("令牌过期","检验失败");
+        }
+        return CommonReturnType.success("令牌未过期","检验成功");
     }
 }
 
