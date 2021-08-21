@@ -27,7 +27,7 @@ public class LossDetailVO {
 
     private Boolean status;
 
-    private Date lossTime;
+    private Long lossTime;
 
     private Integer lossUserId;
 

@@ -2,6 +2,7 @@ package com.example.lostfound.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
@@ -41,8 +42,7 @@ public class TLossThing implements Serializable {
 
     private Boolean status;
 
-    @TableField(fill = FieldFill.INSERT)
-    private Date lossTime;
+    private Long lossTime;
 
     @TableLogic
     private Boolean isDelete;

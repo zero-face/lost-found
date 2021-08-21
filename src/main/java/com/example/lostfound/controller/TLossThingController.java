@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.smartcardio.CommandAPDU;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -197,7 +198,7 @@ public class TLossThingController extends BaseController{
                                         @RequestParam(value = "pic",required = false)String picture,
                                         @RequestParam(value = "address")String address,
                                         @RequestParam(value = "type")Integer type,
-                                        @RequestParam(value = "loseTime",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8") Date time,
+                                        @RequestParam(value = "lossTime",required = false) Long time,
                                         @RequestParam(value = "userId")Integer userId,
                                         @RequestParam(value = "des")String description
                                         ) {

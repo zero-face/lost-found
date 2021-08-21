@@ -2,6 +2,7 @@ package com.example.lostfound.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.lostfound.constant.RedisCode;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
@@ -201,12 +202,27 @@ public class TUserController extends BaseController{
 
     /**
      * 实名认证
-     * @param user
+     * @param
      * @return
      */
     @PostMapping("/auth")
-    public CommonReturnType realNameAuthentication(@RequestBody TUser user) {
-        userService.update(user, new QueryWrapper<TUser>().eq("nick_name", user.getNickName()));
+    public CommonReturnType realNameAuthentication(@RequestParam("name") String trueName,
+                                                   @RequestParam("number") String number,
+                                                   @RequestParam("tel") String tel,
+                                                   @RequestParam("collage") String collage,
+                                                   @RequestParam("clazz") String clazz,
+                                                   @RequestParam("uid") Integer id) {
+        final TUser id1 = userService.getOne(new QueryWrapper<TUser>().eq("id", id));
+        if(null == id1) {
+            return CommonReturnType.fail("没有该用户","获取失败");
+        }
+        id1.setTrueName(trueName);
+        id1.setNumber(number);
+        id1.setTel(tel);
+        id1.setCollage(collage);
+        id1.setClazz(clazz);
+        id1.setIsTrue(true);
+        userService.update(id1, new UpdateWrapper<TUser>().eq("id", id));
         return CommonReturnType.success(null,"认证成功");
     }
 

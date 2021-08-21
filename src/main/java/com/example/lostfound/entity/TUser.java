@@ -70,4 +70,9 @@ public class TUser implements Serializable {
 
     @ApiModelProperty(value = "账户openid")
     private Integer openId;
+    
+    @ApiModelProperty(value = "是否实名")
+    private Boolean isTrue;
+    
+    
 }

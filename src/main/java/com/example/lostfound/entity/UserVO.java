@@ -55,4 +55,6 @@ public class UserVO {
     @ApiModelProperty(value = "上次登录时间")
     private Long lastLoginTime;
 
+    private Boolean isTrue;
+
 }

@@ -64,26 +64,27 @@ public class TFoundThingController extends BaseController{
      */
     @GetMapping("/pubfound")
     public CommonReturnType publishFound(@RequestParam("name")@NotBlank String name,
-                                         @RequestParam(value = "pic",required = false)MultipartFile pic,
+                                         @RequestParam(value = "pic",required = false)String pic,
                                          @RequestParam("address")@NotBlank String address,
                                          @RequestParam("lossTime")@NotNull Long lossTime,
                                          @RequestParam("des")@NotBlank String des,
                                          @RequestParam("type")@NotBlank String type,
-                                         @RequestParam("userId")@NotEmpty Integer userId) throws BusinessException {
-        String picUrl = null;
+                                         @RequestParam("userId") Integer userId) throws BusinessException {
+        /*String picUrl = null;value = 1629504000000
         if(pic != null) {
             picUrl = lossThingService.uploadImage(pic);
             if(StringUtils.isEmpty(picUrl)) {
                 log.info("没有上传图片");
             }
-        }
-        String finalPicUrl = picUrl;
+        }*/
+        /*String finalPicUrl = picUrl;*/
+
         TFoundThing foundThing = new TFoundThing() {{
             setName(name);// 名称
             setAddress(address); //地址
             setDescription(des); //描述
             setLoseTime(lossTime); //丢失时间
-            setPictureUrl(finalPicUrl); //图片
+            setPictureUrl(pic); //图片
             setPublishUserId(userId); //发布人
             setType(type); //发布类型
         }};
