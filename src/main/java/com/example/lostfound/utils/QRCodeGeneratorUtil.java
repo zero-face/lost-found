@@ -7,7 +7,6 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.sun.xml.internal.ws.util.UtilException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,7 +240,7 @@ public class QRCodeGeneratorUtil {
         boolean isDirectory = checkDirectory(imgPath);
         if(!isDirectory){
             logger.info("请用户选择正确的保存二维码的路径");
-            throw new UtilException("错误图片路径");
+            throw new RuntimeException("错误图片路径");
         }
         String finalPath = "";
         //如果logo图片是null，生成不包含logo的二维码，否则生成含有logo的二维码
@@ -252,7 +251,7 @@ public class QRCodeGeneratorUtil {
             }
             else {
                 logger.info("请用户选择正确的logo格式jpg or png");
-                throw new UtilException("错误图片后缀");
+                throw new RuntimeException("错误图片后缀");
             }
         }else {
             finalPath = createORCodeNotLogoToFile(srcUrl,imgPath,imgWidth,imgHeight,imgName);
@@ -281,7 +280,7 @@ public class QRCodeGeneratorUtil {
             }
             else {
                 logger.info("请用户选择正确的logo格式jpg or png");
-                throw new UtilException("错误图片后缀");
+                throw new RuntimeException("错误图片后缀");
             }
         }else {
             bytes = createORCodeNotLogoToStream(srcUrl,imgWidth,imgHeight,imgName);

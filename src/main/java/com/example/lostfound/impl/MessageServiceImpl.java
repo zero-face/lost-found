@@ -1,10 +1,21 @@
 package com.example.lostfound.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lostfound.dao.MessageMapper;
+import com.example.lostfound.entity.TLossThing;
+import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.MessageService;
+import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.service.TUserService;
+import com.example.lostfound.vo.MesVO;
 import com.example.lostfound.vo.MessageVO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author Zero
@@ -14,4 +25,23 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessageVO> implements MessageService {
+
+
+    @Autowired
+    private TUserService userService;
+
+    @Override
+    public List<MesVO> formMes(List<MessageVO> list) {
+        if(list == null || list.size() < 1) {
+            return null;
+        }
+        final List<MesVO> mesVOS = list.stream().map(m -> {
+            final MesVO mesVO = new MesVO();
+            final TUser id = userService.getUserInfoByNameOrId(null, m.getFroms());
+            BeanUtils.copyProperties(id, mesVO);
+            BeanUtils.copyProperties(m, mesVO);
+            return mesVO;
+        }).collect(Collectors.toList());
+        return mesVOS;
+    }
 }

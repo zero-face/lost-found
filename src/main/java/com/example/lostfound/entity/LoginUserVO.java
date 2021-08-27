@@ -1,30 +1,24 @@
 package com.example.lostfound.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-
-import java.time.LocalDateTime;
-import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
- * <p>
- * 
- * </p>
- *
- * @author zero
- * @since 2021-08-10
- */
+ * @Author Zero
+ * @Date 2021/8/12 23:26
+ * @Since 1.8
+ * @Description
+ **/
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel(value="User对象", description="")
-public class TUser implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel(value="User视图对象", description="")
+public class LoginUserVO {
     @ApiModelProperty(value = "用户id")
     private Integer id;
 
@@ -33,9 +27,6 @@ public class TUser implements Serializable {
 
     @ApiModelProperty(value = "用户实名")
     private String trueName;
-
-    @ApiModelProperty(value = "密码")
-    private String password;
 
     @ApiModelProperty(value = "性别")
     private String sex;
@@ -59,20 +50,10 @@ public class TUser implements Serializable {
     private String addressUrl;
 
     @ApiModelProperty(value = "上次登录时间")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long lastLoginTime;
 
-    @ApiModelProperty(value = "账户是否可用")
-    private Boolean enable;
-    @ApiModelProperty(value = "账户逻辑删除")
-    @TableLogic
-    private Boolean isDelete;
-
-    @ApiModelProperty(value = "账户openid")
-    private String openId;
-    
-    @ApiModelProperty(value = "是否实名")
     private Boolean isTrue;
-    
-    
+
+    private String token;
+
 }

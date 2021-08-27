@@ -1,5 +1,12 @@
 package com.example.lostfound.vo;
 
+/**
+ * @Author Zero
+ * @Date 2021/8/26 17:29
+ * @Since 1.8
+ * @Description
+ **/
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -7,19 +14,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-/**
- * @Author Zero
- * @Date 2021/8/14 20:50
- * @Since 1.8
- * @Description
- **/
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @TableName("t_message")
-public class MessageVO {
+public class MesVO {
     private String id;
     //发送者
     private Integer froms;
@@ -36,4 +36,10 @@ public class MessageVO {
     private Boolean status;
     //消息类型
     private String type;
+
+    private String addressUrl;
+
+    private String nickName;
+
+    private String name;
 }

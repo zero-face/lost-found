@@ -1,17 +1,19 @@
 package com.example.lostfound.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.TAdminAudit;
 import com.example.lostfound.entity.TFoundLoss;
 import com.example.lostfound.entity.TLossThing;
-import com.example.lostfound.service.TAdminAuditService;
-import com.example.lostfound.service.TFoundLossService;
-import com.example.lostfound.service.TLossCommontService;
-import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.entity.TUser;
+import com.example.lostfound.service.*;
 import com.example.lostfound.utils.NotifyUtil;
+import com.example.lostfound.vo.MesVO;
+import com.example.lostfound.vo.MessageVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.smartcardio.CommandAPDU;
+import java.util.UUID;
 
 /**
  * @Author Zero
@@ -40,6 +43,10 @@ public class TAdminAuditController extends BaseController{
     private TLossThingService lossThingService;
     @Autowired
     private TFoundLossService foundLossService;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private TUserService userService;
 
     /**
      * 管理员审核请求的结果
@@ -49,21 +56,34 @@ public class TAdminAuditController extends BaseController{
      * @return
      */
     @GetMapping("/audit")
-    public CommonReturnType audit(@RequestParam("type")String type,
-                                  @RequestParam("auditId")Integer mesId,
-                                  @RequestParam("des")String des,
-                                  @RequestParam("adminId")Integer adminId,
-                                  @RequestParam("applyId")Integer applyId) {
+    public CommonReturnType audit(@RequestParam("type")String type, //审核结果是否同意
+                                  @RequestParam("auditId")Integer mesId, //认领信息的id
+                                  @RequestParam("des")String des, //描述
+                                  @RequestParam("adminId")Integer adminId, //管理员id
+                                  @RequestParam("applyId")Integer applyId) { //认领人id
+        final TLossThing id = lossThingService.getById(mesId);
+        final MessageVO messageVO = new MessageVO() {{
+            setStatus(true);
+            setId(UUID.randomUUID().toString());
+            setFlag(false);
+            setFroms(adminId);
+            setToo(applyId);
+            setType("0");
+            setMessage(des);
+        }};
+        messageService.save(messageVO);
+        //更改状态
+        final TAdminAudit one = adminAuditService.getOne(new QueryWrapper<TAdminAudit>().eq("id", mesId));
+        one.setAuditTime(System.currentTimeMillis());
+        one.setStatus(true);
+        one.setAdminId(adminId); //设置管理员
+        adminAuditService.updateById(one);
+        final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, applyId);
+        final MesVO mesVO = new MesVO();
+        mesVO.setName(id.getName());
+        BeanUtils.copyProperties(userInfoByNameOrId, mesVO);
+        BeanUtils.copyProperties(messageVO, mesVO);
         if(type .equals("1") ) { //同意
-            //更改状态
-            final TAdminAudit one = adminAuditService.getOne(new QueryWrapper<TAdminAudit>().eq("id", mesId));
-            one.setAuditTime(System.currentTimeMillis());
-            one.setStatus(true);
-            one.setAdminId(adminId); //设置管理员
-            adminAuditService.updateById(one);
-            //实时通知
-            notifyUtil.publish("审核通过,请到尽快到规定地点认领失物","admin_notify_user");
-            //更改失物状态
             final TLossThing byId = lossThingService.getById(one.getLossId());
             byId.setStatus(true);
             lossThingService.updateById(byId);
@@ -74,10 +94,9 @@ public class TAdminAuditController extends BaseController{
             }};
             //放入找回表
             foundLossService.save(tFoundLoss);
-            return CommonReturnType.success("操作成功");
         }
         //回传原因
-        notifyUtil.publish(des,"admin_notify_user");
+        notifyUtil.publish(JSON.toJSONString(mesVO),applyId.toString(),mesId.toString());
         return CommonReturnType.success("操作成功");
     }
 

@@ -75,9 +75,9 @@ public class TLossThingController extends BaseController{
             add(2);
             add(7);
         }};
-        //final List<TLossCommont> list1 = lossCommontService.list(new QueryWrapper<TLossCommont>().select("loss_thing_id").groupBy("loss_thing_id"));
-
-        final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>().eq(true, "status", 0).isNotNull("picture_url").in("type",integers).last("limit 5"));
+        final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>()
+                .eq(true, "status", 0).orderByDesc("loss_time")
+                .isNotNull("picture_url").in("type",integers).last("limit 5"));
         if(null == list || list.size() < 1) {
             return CommonReturnType.fail(null,"获取失败");
         }
@@ -94,7 +94,8 @@ public class TLossThingController extends BaseController{
     public CommonReturnType getAllLost(@PathVariable("pn")Integer pn) {
         //查询第pn，每页5条，不查询数据总数
         final Page<TLossThing> page = new Page<>(pn, 5,false);
-        final Page<TLossThing> lossThingPage = lossThingService.page(page,new QueryWrapper<TLossThing>().eq("status", 0));
+        final Page<TLossThing> lossThingPage = lossThingService.page(page,new QueryWrapper<TLossThing>()
+                .eq("status", 0).orderByDesc("loss_time"));
         final List<TLossThing> records = lossThingPage.getRecords();
         if(records != null || records.size() > 0) {
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(records);
@@ -111,7 +112,8 @@ public class TLossThingController extends BaseController{
     @GetMapping("/list")
     public CommonReturnType getList() {
         //查询第pn，每页5条，不查询数据总数
-        final List<TLossThing> lossThingPage = lossThingService.list(new QueryWrapper<TLossThing>().eq("status", 0));
+        final List<TLossThing> lossThingPage = lossThingService.list(new QueryWrapper<TLossThing>()
+                .eq("status", 0).orderByDesc("loss_time"));
         if(lossThingPage != null || lossThingPage.size() > 0) {
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(lossThingPage);
             return CommonReturnType.success(lossThingVOS,"查询成功");
@@ -128,7 +130,8 @@ public class TLossThingController extends BaseController{
     @GetMapping("/type/{type}")
     @CachePut(value = "redisCache",key = "'RedisLose'+ #type",condition = "#result!=null")
     public CommonReturnType getLostByType(@PathVariable("type")Integer type) {
-        final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>().eq("type", type).eq("status", 0));
+        final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>().eq("type", type)
+                .eq("status", 0).orderByDesc("loss_time"));
         if(list == null || list.size() == 0) {
             return CommonReturnType.fail(null,"没有该类型的失物");
         }
@@ -163,7 +166,8 @@ public class TLossThingController extends BaseController{
      */
     @GetMapping("/detail/{id}")
     public CommonReturnType getDetail(@PathVariable("id")Integer id) {
-        final TLossThing byId = lossThingService.getOne(new QueryWrapper<TLossThing>().eq(true, "status", 0).eq("id",id));
+        final TLossThing byId = lossThingService.getOne(new QueryWrapper<TLossThing>()
+                .eq(true, "status", 0).eq("id",id));
         if(byId !=null) {
             final LossDetailVO lossDetailVO = lossThingService.converTOLossDetailVO(byId);
             return CommonReturnType.success(lossDetailVO,"获取成功");
@@ -225,6 +229,21 @@ public class TLossThingController extends BaseController{
         return CommonReturnType.fail(null,"发布失败");
     }
 
+    /**
+     * 查询一个用户发布的失物
+     * @param id
+     * @return
+     */
+    @GetMapping("/mpub/{id}")
+    public CommonReturnType getLossById(@PathVariable("id")Integer id) {
+        final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>()
+                .eq(true, "loss_user_id", id).orderByDesc("loss_time"));
+        if(list == null) {
+            return CommonReturnType.fail(null,"获取失败");
+        }
+        final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(list);
+        return CommonReturnType.success(lossThingVOS,"获取成功");
+    }
     /**
      * 申请认领
      * @param lossId

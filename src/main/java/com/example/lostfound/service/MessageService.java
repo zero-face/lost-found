@@ -1,7 +1,10 @@
 package com.example.lostfound.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.lostfound.vo.MesVO;
 import com.example.lostfound.vo.MessageVO;
+
+import java.util.List;
 
 /**
  * @Author Zero
@@ -10,4 +13,5 @@ import com.example.lostfound.vo.MessageVO;
  * @Description
  **/
 public interface MessageService extends IService<MessageVO> {
+    List<MesVO> formMes(List<MessageVO> list);
 }

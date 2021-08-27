@@ -1,6 +1,9 @@
 package com.example.lostfound.controller;
 
 
+import cn.hutool.system.UserInfo;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.lostfound.constant.RedisCode;
@@ -20,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,9 +35,13 @@ import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +74,13 @@ public class TUserController extends BaseController{
     @Autowired
     private TUserService userService;
 
+    @Value("${wx.appid}")
+    private String appid;
+
+    @Value("${wx.secret}")
+    private String secret;
+    private String GETOPENIDURL= "https://api.weixin.qq.com/sns/jscode2session";
+
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParam(name = "mail", value = "邮箱" , required = true, paramType = "query", dataType = "String")
@@ -82,7 +97,7 @@ public class TUserController extends BaseController{
            throw new BusinessException(EmBusinessError.EMAIL_SEND_FAILURE);
         }
         System.out.println("您的验证码信息为：" + smsCode.getCode() + "有效时间为：" + smsCode.getExpireTime());
-        return CommonReturnType.success(null,"发送成功");
+        return CommonReturnType.success(smsCode.getCode(),"发送成功");
     }
     @ApiOperation("图形验证码获取")
     @ApiOperationSupport(author = "zero")
@@ -161,15 +176,33 @@ public class TUserController extends BaseController{
 
     /**
      * 更改用户信息
-     * @param user
-     * @param oldUsername
+     * @param
+     * @param
      * @return
      * @throws BusinessException
      */
     @PutMapping
-    public CommonReturnType modifyUserInfo(@RequestBody TUser user,
-                                           @RequestParam("oldUsername")@NotBlank String oldUsername) throws BusinessException {
-        final boolean update = userService.modifyUserInfo(user,oldUsername);
+    public CommonReturnType modifyUserInfo(@RequestParam(value = "name",required = false)String name,
+                                           @RequestParam(value = "pic",required = false)String pic,
+                                           @RequestParam(value = "sex",required = false)String sex,
+                                           @RequestParam(value = "qq",required = false)String qq,
+                                           @RequestParam("id")@NotNull Integer id) throws BusinessException {
+        if(name != null) {
+            final TUser nickName = userService.getOne(new QueryWrapper<TUser>().eq("nick_name", name));
+            if(nickName !=null) {
+                return CommonReturnType.fail("昵称已被占用", "修改失败");
+            }
+        }
+        final TUser id1 = userService.getOne(new QueryWrapper<TUser>().eq("id", id));
+
+        if(id1 == null) {
+            return CommonReturnType.fail("没有该用户","修改失败");
+        }
+        id1.setNickName(name);
+        id1.setAddressUrl(pic);
+        id1.setSex(sex);
+        id1.setQq(qq);
+        final boolean update = userService.update(id1,new UpdateWrapper<TUser>().eq("id", id));
         if(update) {
             log.info("修改成功");
             return CommonReturnType.success(null,"修改成功");
@@ -178,28 +211,6 @@ public class TUserController extends BaseController{
             return CommonReturnType.fail(null,"修改失败");
         }
     }
-
-    /**
-     * 获取用户信息（根据user或者userid 都可以）
-     * @param username
-     * @return
-     */
-    @GetMapping
-    public CommonReturnType getUserInfo(@RequestParam(value = "username",required = false) String username,
-                                        @RequestParam(value = "id",required = false) Integer id) {
-        if(StringUtils.isEmpty(username) && null == id) {
-            return CommonReturnType.fail(null, "参数错误");
-        }
-
-        final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(username, id);
-        if(userInfoByNameOrId != null) {
-            UserVO uerVO = new UserVO();
-            BeanUtils.copyProperties(userInfoByNameOrId, uerVO);
-            return  CommonReturnType.success(uerVO,"获取成功");
-        }
-        return CommonReturnType.fail(null,"获取失败");
-    }
-
     /**
      * 实名认证
      * @param
@@ -225,7 +236,6 @@ public class TUserController extends BaseController{
         userService.update(id1, new UpdateWrapper<TUser>().eq("id", id));
         return CommonReturnType.success(null,"认证成功");
     }
-
     /**
      * 根据名字拿到信息（多余）
      * @param username
@@ -253,5 +263,69 @@ public class TUserController extends BaseController{
         }
         return CommonReturnType.success("令牌未过期","检验成功");
     }
+
+    @PostMapping("/code")
+    @ApiOperation("根据code获取openid并得到登录token")
+    public CommonReturnType receiveCode(@RequestParam("code") String code,TUser user) throws IllegalAccessException, BusinessException, InvocationTargetException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        log.info("获取code开始=========》{}",code);
+        //接收到临时登录的code，向微信服务器发起请求，获取openid,session_key，unionid
+        Map<String,String> map = new HashMap<>();
+        map.put("appid", appid);
+        map.put("code", code);
+        map.put("secret", secret);
+        String openid = userService.getOpenIdByCode(GETOPENIDURL, map);
+        log.info("获取到openid:{}=========》",openid);
+        //查询数据库中是否含有这个openID，如果有，说明已经授权，查询用户信息，返回信息以及token；没有则保存，但是其他的用户信息是空，返回用户信息以及token
+        final TUser one = userService.getOne(new QueryWrapper<TUser>().eq("open_id", openid));
+        if(null == one) {
+            log.info("不存在存在该用户，正在登陆....");
+            final TUser tUser = new TUser();
+            BeanUtils.copyProperties(user, tUser);
+            tUser.setOpenId(openid);
+            userService.save(tUser);
+        }else {
+            final TUser tUser = new TUser();
+            System.out.println("传输的用户信息：" + user);
+            BeanUtils.copyProperties(one, tUser);
+            tUser.setOpenId(openid);
+            System.out.println("userinfo"+tUser);
+            userService.update(tUser,new UpdateWrapper<TUser>().eq("open_id", openid));
+        }
+        final Map<String, Object> maps = new HashMap<String, Object>(){{
+            put("username", user.getNickName());
+        }};
+        final String token = jwtTokenUtil.generateToken(maps, user.getNickName(), 24 * 60 * 60 * 1000);
+        final TUser id = userService.getOne(new QueryWrapper<TUser>().eq("open_id", openid));
+        final UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(id, userVO);
+        Map<String, Object> reToken = JSON.parseObject(JSON.toJSONString(userVO), new TypeReference<Map<String,
+                Object>>() {
+        });
+        reToken.put("token",token);
+        return CommonReturnType.success(reToken);
+    }
+
+    /**
+     * 获取用户信息（根据user或者userid 都可以）
+     * @param username
+     * @return
+     */
+    @GetMapping
+    public CommonReturnType getUserInfo(@RequestParam(value = "username",required = false) String username,
+                                        @RequestParam(value = "id",required = false) Integer id) {
+        if (StringUtils.isEmpty(username) && null == id) {
+            return CommonReturnType.fail(null, "参数错误");
+        }
+
+        final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(username, id);
+        if (userInfoByNameOrId != null) {
+            UserVO uerVO = new UserVO();
+            BeanUtils.copyProperties(userInfoByNameOrId, uerVO);
+            return CommonReturnType.success(uerVO, "获取成功");
+        }
+            return CommonReturnType.fail(null, "获取失败");
+    }
 }
+
+
 

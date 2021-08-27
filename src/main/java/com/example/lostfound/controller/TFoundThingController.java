@@ -93,6 +93,17 @@ public class TFoundThingController extends BaseController{
         return CommonReturnType.success(null,"发布成功");
     }
 
+    @GetMapping("/mpub/{id}")
+    public CommonReturnType getFoundById(@PathVariable("id")Integer id) {
+        final List<TFoundThing> list = foundThingService.list(new QueryWrapper<TFoundThing>().eq("publish_user_id", id).orderByDesc("publish_time"));
+        if(list == null || list.size() < 1) {
+            return CommonReturnType.fail(null,"获取失败");
+        }
+        final List<TFoundThingVO> tFoundThingVOS = foundThingService.converToLossVO(list);
+        return CommonReturnType.success(tFoundThingVOS,"获取成功");
+    }
+
+
     /**
      * 分页查询所有的寻物信息
      * @param pn

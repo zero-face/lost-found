@@ -1,17 +1,30 @@
 package com.example.lostfound.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.constant.RedisCode;
+import com.example.lostfound.core.error.BusinessException;
+import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.dao.TUserMapper;
 import com.example.lostfound.service.TUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lostfound.validate.code.ImageDTO;
 import com.example.lostfound.validate.code.ValidateCodeException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
 
 /**
  * <p>
@@ -22,13 +35,15 @@ import org.springframework.stereotype.Service;
  * @since 2021-08-10
  */
 @Service
+@Slf4j
 public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements TUserService {
 
     @Autowired
     private TUserMapper userMapper;
     @Autowired
     private RedisTemplate redisTemplate;
-
+    @Autowired
+    private RestTemplate restTemplate;
 
     /**
      * 查询除了自己之外的用户
@@ -95,6 +110,28 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
         }
         redisTemplate.delete((RedisCode.IMAGE_CODE.getMsg()));
         return true;
+    }
+
+    @Override
+    public String getOpenIdByCode(String url, Map<String, String> map) throws BusinessException, IOException {
+        log.info("获取openid开始=========》");
+        StringBuffer params = new StringBuffer();
+        params.append("?appid=" + map.get("appid")+"&secret="+map.get("secret") + "&"+"js_code=" + map.get("code") + "&"
+                + "grant_type=authorization_code");
+        final ResponseEntity<String> exchange = restTemplate.exchange(new RequestEntity<>(HttpMethod.GET, URI.create(url
+                + params)), String.class);
+        if(exchange.getStatusCodeValue() == 200) {
+            log.info(exchange.getBody());
+            final JSONObject jsonObject = JSON.parseObject(exchange.getBody());
+            final String code = jsonObject.getString("openid");
+            return code;
+        } else if(exchange.getStatusCode().value() == 40029){
+            throw new BusinessException(EmBusinessError.PRIMARY_ERROR,"无效的code");
+        }else if(exchange.getStatusCode().value() == 45011){
+            throw new BusinessException(EmBusinessError.PRIMARY_ERROR,"登录过于频繁");
+        } else {
+            throw new BusinessException(EmBusinessError.PRIMARY_ERROR,"系统繁忙");
+        }
     }
 
     @Override

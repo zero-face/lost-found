@@ -1,12 +1,17 @@
 package com.example.lostfound.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.core.response.CommonReturnType;
-import com.example.lostfound.entity.LossCommentVO;
-import com.example.lostfound.entity.LossLikesVO;
-import com.example.lostfound.entity.TLossCommont;
+import com.example.lostfound.entity.*;
+import com.example.lostfound.service.MessageService;
 import com.example.lostfound.service.TLossCommontService;
+import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.service.TUserService;
+import com.example.lostfound.utils.NotifyUtil;
+import com.example.lostfound.vo.MesVO;
+import com.example.lostfound.vo.MessageVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +47,14 @@ public class TLossCommontController extends BaseController{
 
     @Autowired
     private TLossCommontService lossCommontService;
-
+    @Autowired
+    private NotifyUtil notifyUtil;
+    @Autowired
+    private TLossThingService lossThingService;
+    @Autowired
+    private TUserService userService;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * 发布评论
@@ -64,7 +76,7 @@ public class TLossCommontController extends BaseController{
             setCommont(comment);
             setType(type);
             setUserId(userId);
-            setFatherId(fatherId);
+            setFatherId(fatherId ==  0 ? null:fatherId);
             setLostThingId(lossId);
         }};
         final boolean save = lossCommontService.save(lossCommont);
@@ -83,6 +95,23 @@ public class TLossCommontController extends BaseController{
                 //删除数据库中的评论
                 lossCommontService.removeById(lossCommont.getId());
                 return CommonReturnType.fail("系统错误","评论失败");
+            }
+            final TLossCommont id = lossCommontService.getOne(new QueryWrapper<TLossCommont>().eq("lost_thing_id", lossId).last("limit 1"));
+            final TLossThing one = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("id", id.getLostThingId()));
+            final TUser user = userService.getOne(new QueryWrapper<TUser>().eq("id", one.getLossUserId()));
+            final MessageVO mesVO = new MessageVO();
+//            mesVO.setName(one.getName());
+            mesVO.setFlag(true);
+//            mesVO.setAddressUrl(user.getAddressUrl());
+            mesVO.setMessage(comment);
+//            mesVO.setNickName(user.getNickName());
+            mesVO.setType("2"); //评论消息
+            mesVO.setStatus(true);
+            mesVO.setFroms(userId);
+            mesVO.setToo(one.getLossUserId());
+            messageService.save(mesVO);
+            if(!userId .equals( user.getId()) || fatherId .equals(userId) ) {
+                notifyUtil.publish(JSON.toJSONString(mesVO),one.getLossUserId().toString());
             }
             return allComments;
         }

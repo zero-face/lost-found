@@ -36,7 +36,7 @@ public class MailDetailService implements UserDetailsService {
         //没有这个用户就相当于用邮箱注册
         if(null == one) {
             tUser = new TUser(){{
-                setNickName(username);
+                setNickName(username); //首次登陆就默认名称和密码都是邮箱
                 setPassword(username);
                 setQq(qq);
             }};
@@ -49,6 +49,6 @@ public class MailDetailService implements UserDetailsService {
             tUser = one;
         }
         List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList("user");
-        return new User(tUser.getTrueName(), tUser.getPassword(), true,true,true,true , auths);
+        return new User(tUser.getNickName(), tUser.getPassword(), true,true,true,true , auths);
     }
 }
