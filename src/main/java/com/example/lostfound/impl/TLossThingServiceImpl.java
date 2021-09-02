@@ -56,7 +56,7 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
             //字段拷贝
             BeanUtils.copyProperties(vo, lossThingVO);
             //拿到类型
-            final TThingType id = thingTypeService.getById(vo.getId());
+            final TThingType id = thingTypeService.getById(vo.getType());
             //设置失物类型
             lossThingVO.setType(id.getType());
             return lossThingVO;
@@ -82,7 +82,7 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         //栓塞制发布人头像地址
         lossDetailVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
         //获取详细类型
-        final TThingType id = thingTypeService.getById(loss.getId());
+        final TThingType id = thingTypeService.getById(loss.getType());
         lossDetailVO.setType(id.getType());
         return lossDetailVO;
     }
