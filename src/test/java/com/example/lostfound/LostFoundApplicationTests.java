@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @SpringBootTest
 class LostFoundApplicationTests {
@@ -48,7 +50,7 @@ class LostFoundApplicationTests {
         String md5 = SecureUtil.md5(data);
         System.out.println(time);
         System.out.println(md5);
-
+        Set s = new HashSet();
 
     }
 

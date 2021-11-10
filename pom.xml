@@ -20,8 +20,8 @@
     <dependencies>
         <dependency>
             <groupId>com.zero</groupId>
-            <artifactId>publish</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>auto-deploy</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>

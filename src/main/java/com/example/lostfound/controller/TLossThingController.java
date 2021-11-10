@@ -84,6 +84,7 @@ public class TLossThingController extends BaseController{
         final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(list);
         return CommonReturnType.success(lossThingVOS,"获取成功");
     }
+
     /**
      * 首页的分页查询
      * @param pn
