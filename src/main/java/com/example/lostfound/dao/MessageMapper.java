@@ -1,7 +1,7 @@
 package com.example.lostfound.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MessageVO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

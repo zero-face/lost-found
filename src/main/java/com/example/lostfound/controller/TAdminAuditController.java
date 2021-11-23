@@ -9,8 +9,8 @@ import com.example.lostfound.entity.TLossThing;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.*;
 import com.example.lostfound.utils.NotifyUtil;
-import com.example.lostfound.vo.MesVO;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MesVO;
+import com.example.lostfound.entity.vo.MessageVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.smartcardio.CommandAPDU;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -73,8 +73,8 @@ public class TAdminAuditController extends BaseController{
         }};
         messageService.save(messageVO);
         //更改状态
-        final TAdminAudit one = adminAuditService.getOne(new QueryWrapper<TAdminAudit>().eq("id", mesId));
-        one.setAuditTime(System.currentTimeMillis());
+        final TAdminAudit one = adminAuditService.getOne(new QueryWrapper<TAdminAudit>().eq("loss_id", mesId));
+        one.setGmtModified(new Date());
         one.setStatus(true);
         one.setAdminId(adminId); //设置管理员
         adminAuditService.updateById(one);
@@ -84,12 +84,11 @@ public class TAdminAuditController extends BaseController{
         BeanUtils.copyProperties(userInfoByNameOrId, mesVO);
         BeanUtils.copyProperties(messageVO, mesVO);
         if(type .equals("1") ) { //同意
-            final TLossThing byId = lossThingService.getById(one.getLossId());
-            byId.setStatus(true);
-            lossThingService.updateById(byId);
+            id.setStatus(true);
+            lossThingService.updateById(id);
             final TFoundLoss tFoundLoss = new TFoundLoss() {{
                 setAuditId(mesId); //审核信息id
-                setLossId(byId.getId()); //失物id
+                setLossId(id.getId()); //失物id
                 setUserId(applyId); //领取人id
             }};
             //放入找回表

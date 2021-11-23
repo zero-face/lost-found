@@ -1,11 +1,10 @@
 package com.example.lostfound.component;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.lostfound.service.MessageService;
 import com.example.lostfound.utils.NotifyUtil;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -59,7 +58,6 @@ public class WebSocket {
 
     /**
      * 在线人数
-     *
      */
     private static AtomicInteger onlineCount = new AtomicInteger(0);
 
@@ -67,7 +65,6 @@ public class WebSocket {
      *  用于存所有的连接服务的客户端，这个对象存储是安全的
      */
     private static ConcurrentHashMap<Integer,WebSocket> webSocketSet = new ConcurrentHashMap<>();
-
 
     @OnOpen
     public void OnOpen(Session sessions, @PathParam(value = "uid") Integer userId){
@@ -91,10 +88,14 @@ public class WebSocket {
         log.info("[WebSocket] 退出成功，当前连接人数为：={},是{}",webSocketSet.size(),webSocketSet.keySet());
     }
 
+    /**
+     * 当接收到消息的时候
+     * @param message
+     */
     @OnMessage
-    public void OnMessage(String message){
-        log.info("[WebSocket] 退出成功，当前连接人数为：={},shi{}",webSocketSet.size(),webSocketSet.keySet());
-        String data = JSON.parse(message).toString();//去除转义字符
+    public void OnMessage(String message) {
+        //去除转义字符
+        String data = JSON.parse(message).toString();
         final MessageVO messageVO = JSON.parseObject(data, MessageVO.class);
         log.info("[WebSocket] 收到{}发送给{}的消息：{}",messageVO.getFroms(),messageVO.getToo(),messageVO.getMessage());
         //保存message

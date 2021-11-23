@@ -2,7 +2,7 @@ package com.example.lostfound.validate.code;
 
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
-import com.example.lostfound.config.handler.CustomizeAuthenticationFailureHandler;
+import com.example.lostfound.config.security.handler.CustomizeAuthenticationFailureHandler;
 import com.example.lostfound.constant.RedisCode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +36,7 @@ public class ValidateImageCodeFilter extends OncePerRequestFilter {
 
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
+
     @Autowired
     private CustomizeAuthenticationFailureHandler customizeAuthenticationFailureHandler;
     @Value("{md5.key}")

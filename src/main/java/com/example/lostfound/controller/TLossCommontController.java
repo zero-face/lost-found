@@ -5,18 +5,16 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.*;
+import com.example.lostfound.entity.vo.LossCommentVO;
 import com.example.lostfound.service.MessageService;
 import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.NotifyUtil;
-import com.example.lostfound.vo.MesVO;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MessageVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +26,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <p>

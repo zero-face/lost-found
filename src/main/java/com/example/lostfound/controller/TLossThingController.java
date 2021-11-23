@@ -6,32 +6,26 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.*;
+import com.example.lostfound.entity.vo.AuditVO;
+import com.example.lostfound.entity.vo.LossDetailVO;
+import com.example.lostfound.entity.vo.LossThingVO;
 import com.example.lostfound.service.TAdminAuditService;
 import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.NotifyUtil;
-import com.example.lostfound.utils.OSSUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Update;
-import org.apache.poi.ss.usermodel.Picture;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.smartcardio.CommandAPDU;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +70,7 @@ public class TLossThingController extends BaseController{
             add(7);
         }};
         final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>()
-                .eq(true, "status", 0).orderByDesc("loss_time")
+                .eq(true, "status", 0).orderByDesc("gmt_create")
                 .isNotNull("picture_url").in("type",integers).last("limit 5"));
         if(null == list || list.size() < 1) {
             return CommonReturnType.fail(null,"获取失败");
@@ -96,7 +90,7 @@ public class TLossThingController extends BaseController{
         //查询第pn，每页5条，不查询数据总数
         final Page<TLossThing> page = new Page<>(pn, 5,false);
         final Page<TLossThing> lossThingPage = lossThingService.page(page,new QueryWrapper<TLossThing>()
-                .eq("status", 0).orderByDesc("loss_time"));
+                .eq("status", 0).orderByDesc("gmt_create"));
         final List<TLossThing> records = lossThingPage.getRecords();
         if(records != null || records.size() > 0) {
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(records);
@@ -114,7 +108,7 @@ public class TLossThingController extends BaseController{
     public CommonReturnType getList() {
         //查询第pn，每页5条，不查询数据总数
         final List<TLossThing> lossThingPage = lossThingService.list(new QueryWrapper<TLossThing>()
-                .eq("status", 0).orderByDesc("loss_time"));
+                .eq("status", 0).orderByDesc("gmt_create"));
         if(lossThingPage != null || lossThingPage.size() > 0) {
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(lossThingPage);
             return CommonReturnType.success(lossThingVOS,"查询成功");
@@ -132,7 +126,7 @@ public class TLossThingController extends BaseController{
     @CachePut(value = "redisCache",key = "'RedisLose'+ #type",condition = "#result!=null")
     public CommonReturnType getLostByType(@PathVariable("type")Integer type) {
         final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>().eq("type", type)
-                .eq("status", 0).orderByDesc("loss_time"));
+                .eq("status", 0).orderByDesc("gmt_create"));
         if(list == null || list.size() == 0) {
             return CommonReturnType.fail(null,"没有该类型的失物");
         }
@@ -142,9 +136,9 @@ public class TLossThingController extends BaseController{
 
     /**
      * 搜索
-     * @param search
-     * @param time
-     * @return
+     * @param search 搜索的关键字
+     * @param time 时间
+     * @return 失物的视图模型列表
      */
     @GetMapping
     public CommonReturnType getByFeature(@RequestParam(value = "s",required = true)String search,
@@ -163,7 +157,7 @@ public class TLossThingController extends BaseController{
     /**
      * 获取失物详细信息（失物信息，评论区,需要两次分开请求）
      * @param id 失物id
-     * @return
+     * @return 失物详细信息的视图模型
      */
     @GetMapping("/detail/{id}")
     public CommonReturnType getDetail(@PathVariable("id")Integer id) {
@@ -204,7 +198,7 @@ public class TLossThingController extends BaseController{
                                         @RequestParam(value = "pic",required = false)String picture,
                                         @RequestParam(value = "address")String address,
                                         @RequestParam(value = "type")Integer type,
-                                        @RequestParam(value = "lossTime",required = false) Long time,
+                                        @RequestParam(value = "lossTime",required = false) Date time,
                                         @RequestParam(value = "userId")Integer userId,
                                         @RequestParam(value = "des")String description
                                         ) {
@@ -219,7 +213,7 @@ public class TLossThingController extends BaseController{
             setAddress(address);
             setDescription(description);
             setLossUserId(userId);
-            setLossTime(time);
+            setGmtCreate(time);
             setType(type);
             setPictureUrl(picture);
         }};
@@ -239,7 +233,7 @@ public class TLossThingController extends BaseController{
     @GetMapping("/mpub/{id}")
     public CommonReturnType getLossById(@PathVariable("id")Integer id) {
         final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>()
-                .eq(true, "loss_user_id", id).orderByDesc("loss_time"));
+                .eq(true, "loss_user_id", id).orderByDesc("gmt_create"));
         if(list == null) {
             return CommonReturnType.fail(null,"获取失败");
         }
@@ -254,8 +248,7 @@ public class TLossThingController extends BaseController{
      */
     @GetMapping("/claim")
     public CommonReturnType claim(@RequestParam("lossId")Integer lossId,
-                                  @RequestParam("userId")Integer userId
-                                  ) {
+                                  @RequestParam("userId")Integer userId) {
         //构建一条审核信息
         final TAdminAudit tAdminAudit = new TAdminAudit() {{
             setLossId(lossId);

@@ -53,5 +53,5 @@ public class EncoderClassvo implements Encoder.Text<Map<String, List>>{
             return null;
         }
     }
-*/
+    */
 }

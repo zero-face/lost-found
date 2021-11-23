@@ -1,7 +1,6 @@
 package com.example.lostfound.controller;
 
 
-import cn.hutool.system.UserInfo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,7 +10,7 @@ import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.TUser;
-import com.example.lostfound.entity.UserVO;
+import com.example.lostfound.entity.vo.UserVO;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.*;
 import com.example.lostfound.validate.code.ImageCode;
@@ -79,7 +78,7 @@ public class TUserController extends BaseController{
 
     @Value("${wx.secret}")
     private String secret;
-    private String GETOPENIDURL= "https://api.weixin.qq.com/sns/jscode2session";
+    private String OPENID_URL= "https://api.weixin.qq.com/sns/jscode2session";
 
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
@@ -252,6 +251,13 @@ public class TUserController extends BaseController{
         return CommonReturnType.success(userVO,"获取成功");
     }
 
+    /**
+     * 检测令牌是否有效
+     * @param token
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
     @GetMapping("/check")
     public CommonReturnType checkJWT(@RequestParam("token")String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         if(null == token) {
@@ -264,16 +270,29 @@ public class TUserController extends BaseController{
         return CommonReturnType.success("令牌未过期","检验成功");
     }
 
+    /**
+     * 微信登录
+     * @param code
+     * @param user
+     * @return
+     * @throws IllegalAccessException
+     * @throws BusinessException
+     * @throws InvocationTargetException
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
     @PostMapping("/code")
     @ApiOperation("根据code获取openid并得到登录token")
-    public CommonReturnType receiveCode(@RequestParam("code") String code,TUser user) throws IllegalAccessException, BusinessException, InvocationTargetException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public CommonReturnType receiveCode(@RequestParam("code") String code,TUser user) throws BusinessException,
+            IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         log.info("获取code开始=========》{}",code);
         //接收到临时登录的code，向微信服务器发起请求，获取openid,session_key，unionid
         Map<String,String> map = new HashMap<>();
         map.put("appid", appid);
         map.put("code", code);
         map.put("secret", secret);
-        String openid = userService.getOpenIdByCode(GETOPENIDURL, map);
+        String openid = userService.getOpenIdByCode(OPENID_URL, map);
         log.info("获取到openid:{}=========》",openid);
         //查询数据库中是否含有这个openID，如果有，说明已经授权，查询用户信息，返回信息以及token；没有则保存，但是其他的用户信息是空，返回用户信息以及token
         final TUser one = userService.getOne(new QueryWrapper<TUser>().eq("open_id", openid));

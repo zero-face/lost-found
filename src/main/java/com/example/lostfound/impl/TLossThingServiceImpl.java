@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.dao.TLossThingMapper;
 import com.example.lostfound.entity.*;
 
+import com.example.lostfound.entity.vo.AuditVO;
+import com.example.lostfound.entity.vo.LossDetailVO;
+import com.example.lostfound.entity.vo.LossThingVO;
 import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,7 +16,6 @@ import com.example.lostfound.utils.OSSUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,7 +102,7 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
     }
 
     @Override
-    public AuditVO packageNotifyMes(Integer id,Integer userId,Integer lossId) {
+    public AuditVO packageNotifyMes(Integer id, Integer userId, Integer lossId) {
         final TLossThing lossThing = lossThingMapper.selectOne(new QueryWrapper<TLossThing>().eq("id", lossId));
         final TUser id1 = userService.getOne(new QueryWrapper<TUser>().eq("id", userId));
         AuditVO auditVO = new AuditVO(){{

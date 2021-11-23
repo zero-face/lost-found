@@ -1,11 +1,10 @@
 package com.example.lostfound.service;
 
-import com.example.lostfound.entity.AuditVO;
-import com.example.lostfound.entity.LossDetailVO;
-import com.example.lostfound.entity.LossThingVO;
+import com.example.lostfound.entity.vo.AuditVO;
+import com.example.lostfound.entity.vo.LossDetailVO;
+import com.example.lostfound.entity.vo.LossThingVO;
 import com.example.lostfound.entity.TLossThing;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

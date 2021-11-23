@@ -1,15 +1,12 @@
 package com.example.lostfound.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lostfound.dao.MessageMapper;
-import com.example.lostfound.entity.TLossThing;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.MessageService;
-import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
-import com.example.lostfound.vo.MesVO;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MesVO;
+import com.example.lostfound.entity.vo.MessageVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

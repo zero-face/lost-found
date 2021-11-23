@@ -1,18 +1,15 @@
 package com.example.lostfound.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.MessageService;
-import com.example.lostfound.service.TFoundLossService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
-import com.example.lostfound.vo.MesVO;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MesVO;
+import com.example.lostfound.entity.vo.MessageVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.hash.HashMapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

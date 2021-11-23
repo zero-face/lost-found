@@ -1,6 +1,6 @@
 package com.example.lostfound.validate.smscode;
 
-import com.example.lostfound.config.service.MailDetailService;
+import com.example.lostfound.config.security.service.MailDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;

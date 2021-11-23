@@ -1,8 +1,8 @@
 package com.example.lostfound.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.lostfound.vo.MesVO;
-import com.example.lostfound.vo.MessageVO;
+import com.example.lostfound.entity.vo.MesVO;
+import com.example.lostfound.entity.vo.MessageVO;
 
 import java.util.List;
 

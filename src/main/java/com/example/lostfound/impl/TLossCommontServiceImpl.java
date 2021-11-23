@@ -1,14 +1,12 @@
 package com.example.lostfound.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lostfound.entity.LossCommentVO;
-import com.example.lostfound.entity.LossLikesVO;
+import com.example.lostfound.entity.vo.LossCommentVO;
 import com.example.lostfound.entity.TLossCommont;
 import com.example.lostfound.dao.TLossCommontMapper;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.TLossCommontService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,17 +121,6 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
         return redisTemplate.opsForHash().increment("LOSS_LIKE_" + lossId,"MES_ID_" + mesId,1);
     }
 
-    /**
-     * 减少评论点赞数
-     * @param lossId
-     * @param mesId
-     * @return
-     */
-    @Override
-    public Long deleteCommentLikeNums(Integer lossId, Integer mesId) {
-        return redisTemplate.opsForHash().increment("LOSS_LIKE_" + lossId,"MES_ID_" + mesId,-1);
-    }
-
     @Override
     public List<LossCommentVO> convertToCommentVO(List<TLossCommont> lossCommonts) {
         if(null == lossCommonts || lossCommonts.size() < 1) {
@@ -173,17 +160,6 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
         return lossCommentVO;
     }
 
-    @Override
-    public List<LossLikesVO> convertToLikesVO(List<Integer> list,Integer lossId) {
-        final List<LossLikesVO> collect = list.stream().map(e -> {
-            final Integer o = (Integer) redisTemplate.opsForHash().get("LOSS_LIKE_" + lossId, "MES_ID_" + e);
-            return new LossLikesVO() {{
-                setLossId(lossId);
-                setLikes(o);
-                setMesId(e);
-            }};
-        }).collect(Collectors.toList());
-        return collect;
-    }
+
 
 }
