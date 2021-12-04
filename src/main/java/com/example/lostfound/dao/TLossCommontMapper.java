@@ -1,6 +1,6 @@
 package com.example.lostfound.dao;
 
-import com.example.lostfound.entity.TLossCommont;
+import com.example.lostfound.entity.TLossComment;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2021-08-10
  */
 @Mapper
-public interface TLossCommontMapper extends BaseMapper<TLossCommont> {
+public interface TLossCommontMapper extends BaseMapper<TLossComment> {
 
 }

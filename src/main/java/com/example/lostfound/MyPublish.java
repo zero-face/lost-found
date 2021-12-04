@@ -20,10 +20,12 @@ import java.util.concurrent.TimeUnit;
  **/
 public class MyPublish {
     public static void main(String[] args) throws FileNotFoundException, InterruptedException {
-        for(int i = 0; i < 20; i++) {
-            String s = "F:\\JAVA\\python_study" + RandomUtil.randomString(3);
-            shua(s);
-        }
+
+
+//        for(int i = 0; i < 20; i++) {
+//            String s = "F:\\JAVA\\python_study" + RandomUtil.randomString(3);
+//            shua(s);
+//        }
 
 
     }

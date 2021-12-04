@@ -2,7 +2,7 @@ package com.example.lostfound.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.entity.vo.LossCommentVO;
-import com.example.lostfound.entity.TLossCommont;
+import com.example.lostfound.entity.TLossComment;
 import com.example.lostfound.dao.TLossCommontMapper;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.TLossCommontService;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @since 2021-08-10
  */
 @Service
-public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLossCommont> implements TLossCommontService {
+public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLossComment> implements TLossCommontService {
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -71,13 +71,13 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
     @Override
     public List<LossCommentVO> getAllComment(Integer lossId) {
         //拿到丢失详情中所有的一次评论
-        final List<TLossCommont> tLossCommonts = lossCommontMapper.selectList(new QueryWrapper<TLossCommont>().select("id", "commont", "type", "father_id", "user_id","lost_thing_id","father_id").eq("lost_thing_id", lossId).eq("type","1"));
+        final List<TLossComment> tLossCommonts = lossCommontMapper.selectList(new QueryWrapper<TLossComment>().select("id", "comment", "type", "father_id", "user_id","lost_thing_id","father_id").eq("lost_thing_id", lossId).eq("type","1"));
         if(null == tLossCommonts || tLossCommonts.size()==0) { //为空则说明没有任何评论
             return null;
         }
         //遍历一级评论，找到所有父级id为对应的id的二级评论
         final List<LossCommentVO> commentVOList = tLossCommonts.stream().map(comment -> {
-            final List<TLossCommont> sonComments = lossCommontMapper.selectList(new QueryWrapper<TLossCommont>().select("id", "commont", "type", "father_id", "user_id", "lost_thing_id", "father_id").eq("lost_thing_id", lossId).eq("type", "2").eq("father_id", comment.getId()));
+            final List<TLossComment> sonComments = lossCommontMapper.selectList(new QueryWrapper<TLossComment>().select("id", "comment", "type", "father_id", "user_id", "lost_thing_id", "father_id").eq("lost_thing_id", lossId).eq("type", "2").eq("father_id", comment.getId()));
             //将所有子评论转换为VO
             final List<LossCommentVO> sonLossCommentVOS = convertToCommentVO(sonComments);
             //将父评论转化为vo
@@ -122,7 +122,7 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
     }
 
     @Override
-    public List<LossCommentVO> convertToCommentVO(List<TLossCommont> lossCommonts) {
+    public List<LossCommentVO> convertToCommentVO(List<TLossComment> lossCommonts) {
         if(null == lossCommonts || lossCommonts.size() < 1) {
             return null;
         }
@@ -133,8 +133,6 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
             final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, comment.getUserId());
             //设置头像地址
             lossCommentVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
-            //设置点赞数
-             lossCommentVO.setLikes(getLikeNum(comment.getId(), lossCommentVO.getLostThingId()));
             //设置昵称
             lossCommentVO.setNickName(userInfoByNameOrId.getNickName());
             return lossCommentVO;
@@ -142,7 +140,7 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
         return lossCommentVOS;
     }
 
-    private LossCommentVO convertToCommentVO(TLossCommont lossCommonts) {
+    private LossCommentVO convertToCommentVO(TLossComment lossCommonts) {
         if(null == lossCommonts) {
             return null;
         }
@@ -153,8 +151,6 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
         final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, lossCommonts.getUserId());
         //设置头像地址
         lossCommentVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
-        //设置点赞数
-        lossCommentVO.setLikes(getLikeNum(lossCommonts.getId(), lossCommentVO.getLostThingId()));
         //设置昵称
         lossCommentVO.setNickName(userInfoByNameOrId.getNickName());
         return lossCommentVO;

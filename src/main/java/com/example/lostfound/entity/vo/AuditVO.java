@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * @Author Zero
  * @Date 2021/8/14 14:17
@@ -51,4 +53,9 @@ public class AuditVO {
      * 申请人id
      */
     private Integer applyId;
+
+    /**
+     * 申请时间
+     */
+    private Date gmtCreate;
 }

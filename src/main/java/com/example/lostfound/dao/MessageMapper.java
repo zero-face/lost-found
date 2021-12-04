@@ -1,7 +1,7 @@
 package com.example.lostfound.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.lostfound.entity.vo.MessageVO;
+import com.example.lostfound.entity.TMessage;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @Description
  **/
 @Mapper
-public interface MessageMapper extends BaseMapper<MessageVO> {
+public interface MessageMapper extends BaseMapper<TMessage> {
 }

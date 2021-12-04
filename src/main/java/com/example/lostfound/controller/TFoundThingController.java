@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -55,7 +57,7 @@ public class TFoundThingController extends BaseController{
     public CommonReturnType publishFound(@RequestParam("name")@NotBlank String name,
                                          @RequestParam(value = "pic",required = false)String pic,
                                          @RequestParam("address")@NotBlank String address,
-                                         @RequestParam("lossTime")@NotNull Long lossTime,
+                                         @RequestParam("lossTime")@NotNull Date lossTime,
                                          @RequestParam("des")@NotBlank String des,
                                          @RequestParam("type")@NotBlank String type,
                                          @RequestParam("userId") Integer userId) throws BusinessException {
@@ -82,6 +84,11 @@ public class TFoundThingController extends BaseController{
         return CommonReturnType.success(null,"发布成功");
     }
 
+    /**
+     * 查找用户发布
+     * @param id 用户id
+     * @return 用户发布的信息的视图模型
+     */
     @GetMapping("/mpub/{id}")
     public CommonReturnType getFoundById(@PathVariable("id")Integer id) {
         final List<TFoundThing> list = foundThingService.list(new QueryWrapper<TFoundThing>().eq("publish_user_id", id).orderByDesc("publish_time"));
@@ -99,10 +106,15 @@ public class TFoundThingController extends BaseController{
      * @return
      */
     @GetMapping("/founds/{pn}")
-    public CommonReturnType getAllFoundThing(@PathVariable("pn")Integer pn){
+    public CommonReturnType getAllFoundThing(@PathVariable("pn")Integer pn,
+                                            @NotNull @RequestParam("typeId")Integer typeId){
         //查询第pn，每页5条，不查询数据总数
         final Page<TFoundThing> page = new Page<>(pn, 5,false);
-        final Page<TFoundThing> lossThingPage = foundThingService.page(page,new QueryWrapper<TFoundThing>().eq("status", 0));
+        final HashMap<String, Object> hashMap = new HashMap<String, Object>() {{
+            put("status", 0);
+            put("type", typeId);
+        }};
+        final Page<TFoundThing> lossThingPage = foundThingService.page(page,new QueryWrapper<TFoundThing>().eq(typeId == 0,"status", 0).allEq(typeId != 0, hashMap,false).orderByDesc("gmt_create"));
         final List<TFoundThing> records = lossThingPage.getRecords();
         if(records != null || records.size() > 0) {
             final List<TFoundThingVO> tFoundThingVOS = foundThingService.converToLossVO(records);

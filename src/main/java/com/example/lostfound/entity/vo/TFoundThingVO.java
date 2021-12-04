@@ -1,8 +1,11 @@
 package com.example.lostfound.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
  * @Author Zero
@@ -19,17 +22,24 @@ public class TFoundThingVO {
 
     private String name;
 
+    private String nickName;
+
+    private Integer userId;
+
+    private String userAddress;
+
     private String pictureUrl;
 
     private String address;
-
-    private Long loseTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date loseTime;
 
     private String description;
 
     private Integer status;
 
-    private Long publishTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date gmtCreate;
 
     private Integer publishUserId;
 

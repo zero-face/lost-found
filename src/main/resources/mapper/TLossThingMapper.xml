@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.lostfound.dao.TLossThingMapper">
-    <select id="getLossBySearchAnddescriptionTime" resultType="com.example.lostfound.entity.TLossThing">
-        select id,`name`,picture_url,address,loss_time,loss_user_id,description from t_loss_thing
+    <select id="getLossBySearchAndTime" resultType="com.example.lostfound.entity.TLossThing">
+        select * from t_loss_thing
         <where>
             <if test="time != null">
                 loss_time >= date_sub(current_date(), interval #{time} day)
             </if>
-                 AND  like CONCAT('%', #{search} ,'%')
+                 AND description like CONCAT('%', #{search} ,'%')
                  AND status = 0
         </where>
     </select>

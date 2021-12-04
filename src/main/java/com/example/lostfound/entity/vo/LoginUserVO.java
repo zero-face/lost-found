@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * @Author Zero
  * @Date 2021/8/12 23:26
@@ -50,7 +52,7 @@ public class LoginUserVO {
     private String addressUrl;
 
     @ApiModelProperty(value = "上次登录时间")
-    private Long lastLoginTime;
+    private Date gmtModified;
 
     private Boolean isTrue;
 

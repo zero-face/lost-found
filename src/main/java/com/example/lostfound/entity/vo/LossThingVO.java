@@ -3,6 +3,7 @@ package com.example.lostfound.entity.vo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -25,10 +26,17 @@ public class LossThingVO {
 
     private Boolean status;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date lossTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date gmtCreate;
 
     private Integer lossUserId;
 
+    private String lossNickName;
+
     private String type;
+
     private String description;
 }

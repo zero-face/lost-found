@@ -2,7 +2,6 @@ package com.example.lostfound.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
@@ -16,7 +15,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * <p>
@@ -28,46 +26,40 @@ import lombok.ToString;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="LossThing对象", description="")
-@ToString
-public class TLossThing implements Serializable {
+@ApiModel(value="LossComment对象", description="")
+@TableName("t_loss_comment")
+public class TLossComment implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private String name;
+    private String comment;
 
-    private String pictureUrl;
 
-    private String address;
 
-    private String description;
-
-    private Boolean status;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Date lossTime;
-
-    /**
-     * 丢失时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT)
-    private Date gmtCreate;
-
-    /**
-     * 找到时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date gmtModified;
+    private String type;
 
     @TableLogic
     private Boolean isDelete;
 
-    private Integer lossUserId;
+    private Integer fatherId;
 
-    private Integer type;
+    private Integer userId;
+
+    private Integer lostThingId;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @TableField(fill = FieldFill.INSERT)
+    private Date gmtCreate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Date gmtModified;
+
 }

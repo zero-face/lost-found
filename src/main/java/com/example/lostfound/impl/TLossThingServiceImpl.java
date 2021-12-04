@@ -55,12 +55,14 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
     public List<LossThingVO> converToLossVO(List<TLossThing> list) {
         final List<LossThingVO> collect = list.stream().map(vo -> {
             final LossThingVO lossThingVO = new LossThingVO();
+            final TUser user = userService.getOne(new QueryWrapper<TUser>().eq(vo.getLossUserId() != null, "id", vo.getLossUserId()));
             //字段拷贝
             BeanUtils.copyProperties(vo, lossThingVO);
             //拿到类型
             final TThingType id = thingTypeService.getById(vo.getType());
             //设置失物类型
             lossThingVO.setType(id.getType());
+            lossThingVO.setLossNickName(user.getNickName());
             return lossThingVO;
         }).collect(Collectors.toList());
         return collect;
@@ -81,7 +83,7 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         lossDetailVO.setNickName(userInfoByNameOrId.getNickName());
         //设置评论量
         lossDetailVO.setCommentNum(commentNum);
-        //栓塞制发布人头像地址
+        //设置发布人头像地址
         lossDetailVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
         //获取详细类型
         final TThingType id = thingTypeService.getById(loss.getType());

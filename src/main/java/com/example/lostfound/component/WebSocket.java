@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.lostfound.service.MessageService;
 import com.example.lostfound.utils.NotifyUtil;
-import com.example.lostfound.entity.vo.MessageVO;
+import com.example.lostfound.entity.TMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -96,7 +96,7 @@ public class WebSocket {
     public void OnMessage(String message) {
         //去除转义字符
         String data = JSON.parse(message).toString();
-        final MessageVO messageVO = JSON.parseObject(data, MessageVO.class);
+        final TMessage messageVO = JSON.parseObject(data, TMessage.class);
         log.info("[WebSocket] 收到{}发送给{}的消息：{}",messageVO.getFroms(),messageVO.getToo(),messageVO.getMessage());
         //保存message
         messageVO.setId(UUID.randomUUID().toString());
@@ -115,7 +115,7 @@ public class WebSocket {
      * @param
      * @param
      */
-    public void AppointSending(MessageVO messageVO ){
+    public void AppointSending(TMessage messageVO ){
         try {
             System.out.println(webSocketSet.keySet());
             System.out.println("包含"+ messageVO.getToo());
@@ -126,7 +126,7 @@ public class WebSocket {
                 //离线则保存这个消息
                 messageVO.setStatus(true);
                 //更改消息为离线消息
-                messageService.update(messageVO,new UpdateWrapper<MessageVO>().eq("id", messageVO.getId()));
+                messageService.update(messageVO,new UpdateWrapper<TMessage>().eq("id", messageVO.getId()));
                 //第三方消息推送服务推送消息
                 //通道设置为用户id，这样每个用户只需订阅自己唯一id的通道就能获得所有的通
                 notifyUtil.publish(JSON.toJSONString(messageVO),messageVO.getToo().toString(),messageVO.getId());

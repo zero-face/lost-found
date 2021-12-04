@@ -10,7 +10,7 @@ import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.*;
 import com.example.lostfound.utils.NotifyUtil;
 import com.example.lostfound.entity.vo.MesVO;
-import com.example.lostfound.entity.vo.MessageVO;
+import com.example.lostfound.entity.TMessage;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -62,7 +62,7 @@ public class TAdminAuditController extends BaseController{
                                   @RequestParam("adminId")Integer adminId, //管理员id
                                   @RequestParam("applyId")Integer applyId) { //认领人id
         final TLossThing id = lossThingService.getById(mesId);
-        final MessageVO messageVO = new MessageVO() {{
+        final TMessage messageVO = new TMessage() {{
             setStatus(true);
             setId(UUID.randomUUID().toString());
             setFlag(false);

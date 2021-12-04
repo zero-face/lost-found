@@ -6,7 +6,7 @@ import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.MessageService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.entity.vo.MesVO;
-import com.example.lostfound.entity.vo.MessageVO;
+import com.example.lostfound.entity.TMessage;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,14 +21,14 @@ import java.util.stream.Collectors;
  * @Description
  **/
 @Service
-public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessageVO> implements MessageService {
+public class MessageServiceImpl extends ServiceImpl<MessageMapper, TMessage> implements MessageService {
 
 
     @Autowired
     private TUserService userService;
 
     @Override
-    public List<MesVO> formMes(List<MessageVO> list) {
+    public List<MesVO> formMes(List<TMessage> list) {
         if(list == null || list.size() < 1) {
             return null;
         }

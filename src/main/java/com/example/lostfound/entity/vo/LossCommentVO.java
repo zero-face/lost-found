@@ -1,7 +1,9 @@
 package com.example.lostfound.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,7 +17,7 @@ public class LossCommentVO {
 
     private Integer id;
 
-    private String commont;
+    private String comment;
 
     private String type;
 
@@ -25,15 +27,12 @@ public class LossCommentVO {
 
     private Integer lostThingId;
 
-    private Integer likes;
-
     private String nickName;
 
     private String addressUrl;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date gmtCreate;
+
     private List<LossCommentVO> son;
-
-
-
-
 }

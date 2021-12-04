@@ -7,7 +7,7 @@ import com.example.lostfound.service.MessageService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.entity.vo.MesVO;
-import com.example.lostfound.entity.vo.MessageVO;
+import com.example.lostfound.entity.TMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +42,7 @@ public class MessageController {
      */
     @GetMapping("/{id}")
     public CommonReturnType getMessageById(@PathVariable("id")String mesId) {
-        final MessageVO id = messageService.getOne(new QueryWrapper<MessageVO>().eq("id", mesId));
+        final TMessage id = messageService.getOne(new QueryWrapper<TMessage>().eq("id", mesId));
         if(null == id) {
             return CommonReturnType.fail(null,"获取失败");
         }
@@ -53,28 +53,39 @@ public class MessageController {
         return CommonReturnType.success(maps,"获取成功");
     }
 
+    /**
+     * 获取历史消息
+     * @param fromId
+     * @param toId
+     * @return
+     */
     @GetMapping("/history")
     public CommonReturnType history(@RequestParam("fromId")Integer fromId,
                                     @RequestParam("toId")Integer toId) {
-        final List<MessageVO> froms = messageService.list(new QueryWrapper<MessageVO>()
+        final List<TMessage> froms = messageService.list(new QueryWrapper<TMessage>()
                 .eq(true, "froms", fromId).eq("too", toId).eq("type","1"));
-        final List<MessageVO> too = messageService.list(new QueryWrapper<MessageVO>()
+        final List<TMessage> too = messageService.list(new QueryWrapper<TMessage>()
                 .eq(true, "froms", toId).eq("too", fromId).eq("type","1"));
         if ((froms == null || froms.size() < 1) &&(too == null || too.size() < 1)) {
             return CommonReturnType.fail("没有聊天记录","获取失败");
         }
-        List<MessageVO> list = Stream.of(froms,too)
+        List<TMessage> list = Stream.of(froms,too)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList())
                 .stream()
-                .sorted(Comparator.comparing(MessageVO::getSendTime))
+                .sorted(Comparator.comparing(TMessage::getGmtCreate))
                 .collect(Collectors.toList());
         return CommonReturnType.success(list,"获取成功");
     }
 
+    /**
+     * 获取离线消息
+     * @param id
+     * @return
+     */
     @GetMapping("/offline")
     public CommonReturnType offlineMes(@RequestParam("id")Integer id) {
-        final List<MessageVO> status = messageService.list(new QueryWrapper<MessageVO>().eq(true, "status", 1).eq("too", id).orderByDesc("send_time"));
+        final List<TMessage> status = messageService.list(new QueryWrapper<TMessage>().eq(true, "status", 1).eq("too", id).orderByDesc("send_time"));
         if(status == null) {
             return CommonReturnType.fail(null,"没有离线消息");
         }

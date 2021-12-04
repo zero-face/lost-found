@@ -32,6 +32,7 @@ public class MesVO {
     //发送时间
     @TableField(fill = FieldFill.INSERT)
     private Long sendTime;
+
     //标志在线或者离线消息
     private Boolean status;
     //消息类型

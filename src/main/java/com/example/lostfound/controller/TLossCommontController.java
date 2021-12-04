@@ -11,7 +11,7 @@ import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.NotifyUtil;
-import com.example.lostfound.entity.vo.MessageVO;
+import com.example.lostfound.entity.TMessage;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +69,8 @@ public class TLossCommontController extends BaseController{
                                          @RequestParam(value = "type")String type,  //属于几级评论
                                          @RequestParam(value = "fatherId",required = false)Integer fatherId //评论的fatherid
                                          ){
-        TLossCommont lossCommont = new TLossCommont() {{
-            setCommont(comment);
+        TLossComment lossCommont = new TLossComment() {{
+            setComment(comment);
             setType(type);
             setUserId(userId);
             setFatherId(fatherId ==  0 ? null:fatherId);
@@ -93,10 +93,10 @@ public class TLossCommontController extends BaseController{
                 lossCommontService.removeById(lossCommont.getId());
                 return CommonReturnType.fail("系统错误","评论失败");
             }
-            final TLossCommont id = lossCommontService.getOne(new QueryWrapper<TLossCommont>().eq("lost_thing_id", lossId).last("limit 1"));
+            final TLossComment id = lossCommontService.getOne(new QueryWrapper<TLossComment>().eq("lost_thing_id", lossId).last("limit 1"));
             final TLossThing one = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("id", id.getLostThingId()));
             final TUser user = userService.getOne(new QueryWrapper<TUser>().eq("id", one.getLossUserId()));
-            final MessageVO mesVO = new MessageVO();
+            final TMessage mesVO = new TMessage();
 //            mesVO.setName(one.getName());
             mesVO.setFlag(true);
 //            mesVO.setAddressUrl(user.getAddressUrl());
