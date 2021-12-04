@@ -22,10 +22,10 @@ public class MyPublish {
     public static void main(String[] args) throws FileNotFoundException, InterruptedException {
 
 
-//        for(int i = 0; i < 20; i++) {
-//            String s = "F:\\JAVA\\python_study" + RandomUtil.randomString(3);
-//            shua(s);
-//        }
+        for(int i = 0; i < 20; i++) {
+            String s = "F:\\JAVA\\python_study" + RandomUtil.randomString(3);
+            shua(s);
+        }
 
 
     }
@@ -35,7 +35,7 @@ public class MyPublish {
         final StoreConfig storeConfig = new StoreConfig();
         storeConfig.setBranch_name("master");
         storeConfig.setGit_username("zero-c");
-        storeConfig.setGit_password("chl252599");
+        storeConfig.setGit_password("");
         storeConfig.setRemote_repo_uri("https://gitee.com/zero-c/lost-found.git");
         storeConfig.setLocal_repo_path(p); //本地仓库代码路径
         storeConfig.setLocal_code_dir("F:\\JAVA\\code\\lost-found\\");//本地提交代码路径
@@ -44,8 +44,8 @@ public class MyPublish {
         final ServerConfig serverConfig = new ServerConfig();
         serverConfig.setUsername("root");
         serverConfig.setPort(8888);
-        serverConfig.setPassword("@chl252599");
-        serverConfig.setIp("123.57.220.238");
+        serverConfig.setPassword("");
+        serverConfig.setIp("");
         serverConfig.setDir("/application");
         serverConfig.setIsUploadFile(true);
         autoPublish.setServerConfig(serverConfig);
