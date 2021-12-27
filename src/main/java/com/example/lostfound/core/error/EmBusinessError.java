@@ -61,7 +61,10 @@ public enum EmBusinessError implements CommonError {
     SERVICE_AUTHENTICATION_INVALID(90006,"用户认证凭据无效"),
     INVALID_CLAIM(90007,"无效的声明"),
     PREMATURE_JWT(90008,"jwt过早"),
-    SIGNATURE_ERROR(90009,"秘钥错误");
+    SIGNATURE_ERROR(90009,"秘钥错误"),
+
+    RATELIMITOE_ERROR(50000,"访问速度过快"),
+    REPEATSUBMIT_ERROR(50001,"重复提交错误");
     private EmBusinessError(int errCode, String errMsg) {
         this.errCode = errCode;
         this.errMsg = errMsg;

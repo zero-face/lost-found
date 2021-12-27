@@ -1,9 +1,13 @@
 package com.example.lostfound.config.security;
 
 import com.example.lostfound.interceptor.JwtIntercepter;
+import com.example.lostfound.interceptor.RepeatSubmitInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
 
 /**
  * @Author Zero
@@ -11,18 +15,26 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @Since 1.8
  * @Description
  **/
-public class JWTConfig implements WebMvcConfigurer {
+@Component
+public class ResourceConfig implements WebMvcConfigurer {
     @Autowired
     private JwtIntercepter jwtIntercepter;
 
+    @Autowired
+    private RepeatSubmitInterceptor repeatSubmitInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
+        registry.addInterceptor(repeatSubmitInterceptor)
+                .addPathPatterns("/**");
+
         registry.addInterceptor(jwtIntercepter)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/api/v1/user/login",
-                        "/doc.html","/webjars/**","/img.icons/**","/swagger-resources/**","/**","/v2/api-docs",
+                        "/doc.html","/webjars/**","/img.icons/**","/swagger-resources/**","/v2/api-docs",
                         "/swagger-ui.html",
-                        "/error");
+                        "/error","/**");
     }
 
 }

@@ -3,7 +3,7 @@ package com.example.lostfound.validate.code;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import com.example.lostfound.config.security.handler.CustomizeAuthenticationFailureHandler;
-import com.example.lostfound.constant.RedisCode;
+import com.example.lostfound.enums.RedisCode;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;

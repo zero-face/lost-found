@@ -19,7 +19,6 @@ public class NotifyUtil {
 
     Boolean flag = false;
     public boolean publish (String content,String channel) {
-
         return false;
     }
     public boolean publish (String content,String channel,String mesId) {

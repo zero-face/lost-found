@@ -1,4 +1,4 @@
-package com.example.lostfound.constant;
+package com.example.lostfound.enums;
 
 /**
  * @Author Zero
@@ -7,8 +7,9 @@ package com.example.lostfound.constant;
  * @Description
  **/
 public enum RedisCode {
-    IMAGE_CODE("REDIS_KEY_IMAGE_CODE"),
-    MAIL_CODE("REDIS_KEY_MAIL_CODE");
+    IMAGE_CODE("IMAGE_CODE"),
+    MAIL_CODE("MAIL_CODE"),
+    RATE_LIMIT_KEY("RATE_LIME");
     private String msg;
 
     RedisCode(String msg) {
@@ -19,3 +20,4 @@ public enum RedisCode {
         return msg;
     }
 }
+                                                                          

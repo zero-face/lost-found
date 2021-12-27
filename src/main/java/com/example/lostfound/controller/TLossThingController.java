@@ -4,6 +4,8 @@ package com.example.lostfound.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.lostfound.annotation.RateLimiter;
+import com.example.lostfound.annotation.RepeatSubmit;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.*;
 import com.example.lostfound.entity.vo.AuditVO;
@@ -97,7 +99,6 @@ public class TLossThingController extends BaseController{
             return CommonReturnType.success(lossThingVOS,"查询成功");
         }
         return CommonReturnType.fail(null, "查询失败");
-
     }
 
     /**
@@ -105,6 +106,7 @@ public class TLossThingController extends BaseController{
      * @return
      */
     @GetMapping("/list")
+    @RateLimiter(time = 10000,count = 1)
     public CommonReturnType getList() {
         //查询第pn，每页5条，不查询数据总数
         final List<TLossThing> lossThingPage = lossThingService.list(new QueryWrapper<TLossThing>()
@@ -194,6 +196,7 @@ public class TLossThingController extends BaseController{
      */
     @JsonFormat
     @RequestMapping ("/publoss")
+    @RepeatSubmit(interval = 2000)
     public CommonReturnType publishLoss(@RequestParam(value = "name")String name,
                                         @RequestParam(value = "pic",required = false)String picture,
                                         @RequestParam(value = "address")String address,
@@ -202,12 +205,6 @@ public class TLossThingController extends BaseController{
                                         @RequestParam(value = "userId")Integer userId,
                                         @RequestParam(value = "des")String description
                                         ) {
-//        //保存图片
-//        final String picUrl = lossThingService.uploadImage(picture);
-//        if(StringUtils.isEmpty(picUrl)) {
-//            log.info("图片上传失败");
-//            return CommonReturnType.fail(null, "图片上传失败");
-//        }/**/
         final TLossThing tLossThing = new TLossThing() {{
             setName(name);
             setAddress(address);

@@ -3,7 +3,7 @@ package com.example.lostfound.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lostfound.constant.RedisCode;
+import com.example.lostfound.enums.RedisCode;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.entity.TUser;

@@ -18,10 +18,15 @@
     </properties>
 
     <dependencies>
+        <!--自动部署-->
         <dependency>
             <groupId>com.zero</groupId>
             <artifactId>auto-deploy</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>

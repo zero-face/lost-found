@@ -1,7 +1,7 @@
 package com.example.lostfound.validate.smscode;
 
 import com.example.lostfound.config.security.handler.CustomizeAuthenticationFailureHandler;
-import com.example.lostfound.constant.RedisCode;
+import com.example.lostfound.enums.RedisCode;
 import com.example.lostfound.validate.code.ValidateCodeException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

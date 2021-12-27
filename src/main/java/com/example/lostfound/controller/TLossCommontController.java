@@ -87,7 +87,7 @@ public class TLossCommontController extends BaseController{
             }};
             final CommonReturnType allComments = getAllComments(lossId);
             if(allComments.getStatus() !="success") {
-                //删除品论数
+                //删除评论数
                 lossCommontService.deleteCommentNum(lossId);
                 //删除数据库中的评论
                 lossCommontService.removeById(lossCommont.getId());
@@ -128,7 +128,6 @@ public class TLossCommontController extends BaseController{
             return CommonReturnType.success(allComment,"获取成功");
         }
         return CommonReturnType.fail(null, "获取失败");
-
     }
 
     /**

@@ -32,11 +32,12 @@ class LostFoundApplicationTests {
 
     @Test
     void testRedis() throws IOException {
+        System.out.println(System.currentTimeMillis());
 //        redisUtil.set("test", "test");
-        System.out.println(redisUtil.get("test"));
+//        System.out.println(redisUtil.get("test"));
 //        redisUtil.set("key", new TUser(){{setId(1);setNickeName("test");setClazz("texd");setCollage("fjieo");}});
 //        System.out.println(redisUtil.get("key"));
-        final String key = redisUtil.get("key").toString();
+//        final String key = redisUtil.get("key").toString();
 
 //        final TUser tUser = new ObjectMapper().readValue(key, TUser.class);
 
