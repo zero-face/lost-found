@@ -16,6 +16,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RateLimiter {
+
     /**
      * 限流的key
      */
@@ -34,6 +35,6 @@ public @interface RateLimiter {
     /**
      * 限流类型 全局限流还是根据ip限流或者用户限流
      */
-    LimitType limitType() default LimitType.DEFAULT;
+    LimitType limitType() default LimitType.IP;
 
 }

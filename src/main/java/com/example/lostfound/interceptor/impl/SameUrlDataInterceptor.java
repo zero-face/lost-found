@@ -55,7 +55,6 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor {
         nowDataMap.put(REPEAT_TIME, System.currentTimeMillis());
 
         // 请求地址（作为存放cache的key值）
-
         String submitKey = request.getRequestURI();
 
         // 唯一标识（指定key + 消息头）

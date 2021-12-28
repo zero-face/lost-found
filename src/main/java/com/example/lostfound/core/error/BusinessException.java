@@ -6,7 +6,7 @@ package com.example.lostfound.core.error;
  * @date 2019-08-28 20:28
  * @Version 1.0
  */
-public class BusinessException extends Exception implements CommonError{
+public class BusinessException extends RuntimeException implements CommonError{
     private CommonError commonError;
 
     // 直接接受EmBusinessError的传参用于构造业务异常
