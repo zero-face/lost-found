@@ -2,13 +2,11 @@ package com.example.lostfound.aspectj;
 
 import com.example.lostfound.annotation.RateLimiter;
 import com.example.lostfound.core.error.BusinessException;
-import com.example.lostfound.core.error.CommonError;
 import com.example.lostfound.core.error.EmBusinessError;
-import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.enums.LimitType;
-import com.example.lostfound.utils.IPUtil;
+import com.example.lostfound.utils.ip.AddressUtils;
+import com.example.lostfound.utils.ip.IPUtil;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -19,13 +17,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.ServletRequest;
 import java.lang.reflect.Method;
-import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -72,13 +67,13 @@ public class RateLimiterAspect {
         if(redisTemplate.hasKey(key)) {
             final Integer requestCount = redisTemplate.opsForZSet().rangeByScore(key, cur - time, cur).size();
             if(null != requestCount && requestCount >= count) {
-                log.error("请求速度过快，请稍后重试");
+                final String ip = IPUtil.getIpAddr(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
+                log.error(AddressUtils.getRealAddressByIP(ip) + " ip地址: " + ip +"请求速度过快，请稍后重试");
                 throw new BusinessException(EmBusinessError.RATELIMITOE_ERROR);
             }
         }
         redisTemplate.opsForZSet().add(key, UUID.randomUUID().toString(),cur);
         final Long aLong = redisTemplate.opsForZSet().removeRangeByScore(key, 0, cur - time);
-//        log.error("请求速度过快，请稍后重试,已删除{}条数据",aLong);
     }
 
     private String getCombineKey(RateLimiter rateLimiter, JoinPoint joinPoint) {
