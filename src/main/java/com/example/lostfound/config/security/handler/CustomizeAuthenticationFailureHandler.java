@@ -24,7 +24,6 @@ import java.io.IOException;
 @Component
 public class CustomizeAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
-
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         //返回json数据
