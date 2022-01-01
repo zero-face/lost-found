@@ -39,6 +39,16 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    /**
+     * 通过redis的字符串结构实现
+     * 首先，我们获取请求中的参数，参数分两种：一种是body，也就是post请求，一种是get请求也就是url（parameter）；然后将当前时间戳和参数放入map中
+     * 获取请求的url，以url为key，参数和时间戳map为value，再次封装为一个map
+     * 通过请求中的请求头中的token作为redis的key，如果redis中存在，则获取出来，然后查看是否是当前url，如果是则对比参数是否一样，时间差是否在预设范围内，如果
+     * 在则认为是重复请求，否则就将这个数据保存到redis，redis数据页设置了过期时间为预设的时间
+     * @param request 请求
+     * @param annotation 防重复提交注解
+     * @return
+     */
     @Override
     public boolean isRepeatSubmit(HttpServletRequest request, RepeatSubmit annotation) {
         String nowParams = "";
