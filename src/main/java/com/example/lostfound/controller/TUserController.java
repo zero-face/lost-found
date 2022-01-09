@@ -98,6 +98,7 @@ public class TUserController extends BaseController{
         System.out.println("您的验证码信息为：" + smsCode.getCode() + "有效时间为：" + smsCode.getExpireTime());
         return CommonReturnType.success(smsCode.getCode(),"发送成功");
     }
+
     @ApiOperation("图形验证码获取")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParam(name = "username", value = "账户名称" , required = true, paramType = "query", dataType = "String")
@@ -116,6 +117,7 @@ public class TUserController extends BaseController{
         ImageIO.write(imageCode.getImage(), "jpeg", response.getOutputStream());
     }
 
+
     @ApiOperation("账户密码登录测试接口")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParams({
@@ -125,6 +127,7 @@ public class TUserController extends BaseController{
             @ApiImplicitParam(name ="timeStamp",value = "时间戳" , required = true, paramType = "query", dataType = "String" ),
             @ApiImplicitParam(name ="sign",value = "签名" , required = true, paramType = "query", dataType = "String" )
     })
+
     @PostMapping("/login")
     public String testUserLogin() {
         return "success";
@@ -136,6 +139,7 @@ public class TUserController extends BaseController{
             @ApiImplicitParam(name ="mail",value = "邮箱" , required = true, paramType = "query", dataType = "String" ),
             @ApiImplicitParam(name ="mailCode",value = "验证码" , required = true, paramType = "query", dataType = "String" )
     })
+
     @PostMapping("/mail")
     public String testMailLogin() {
         return "success";
@@ -210,6 +214,7 @@ public class TUserController extends BaseController{
             return CommonReturnType.fail(null,"修改失败");
         }
     }
+
     /**
      * 实名认证
      * @param

@@ -73,7 +73,7 @@ public class TLossCommontController extends BaseController{
             setComment(comment);
             setType(type);
             setUserId(userId);
-            setFatherId(fatherId ==  0 ? null:fatherId);
+            setFatherId(fatherId ==  0 ? null : fatherId);
             setLostThingId(lossId);
         }};
         final boolean save = lossCommontService.save(lossCommont);

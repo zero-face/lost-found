@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
  * @Since 1.8
  * @Description
  **/
-
 public class SmsCode implements Serializable {
     private String code;
 

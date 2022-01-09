@@ -30,22 +30,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
     private UserNameDetailService userdetailservice;
+
     @Resource
     private CustomizeAuthenticationEntryPoint customizeAuthenticationEntryPoint;
+
     @Resource
     private CustomizeSessionInformationExpiredStrategy customizeSessionInformationExpiredStrategy;
+
     @Resource
     private CustomizeAuthenticationSuccessHandler customizeAuthenticationSuccessHandler;
+
     @Resource
     private CustomizeAuthenticationFailureHandler customizeAuthenticationFailureHandler;
+
     @Resource
     private CustomizeAccessDeniedHandler customizeAccessDeniedHandler;
+
     @Resource
     private CustomizeLogoutSuccessHandler customizeLogoutSuccessHandler;
+
     @Resource
     private ValidateImageCodeFilter validateImageCodeFilter;
+
     @Resource
     private SmsFilter smsFilter;
+
     @Resource
     private SmsAuthenticationConfig smsAuthenticationConfig;
 
@@ -80,7 +89,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(validateImageCodeFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(smsFilter, ValidateImageCodeFilter.class);
         http.apply(smsAuthenticationConfig);
-        http.exceptionHandling().authenticationEntryPoint(customizeAuthenticationEntryPoint);
         http.authorizeRequests()
             .antMatchers("/api/v1/user/login","/doc.html","/webjars/**","/img.icons/**",
                     "/swagger-resources/**","/**","/v2/api-docs", "/swagger-ui.html"
@@ -103,7 +111,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionManagement()
             .maximumSessions(1)
             .expiredSessionStrategy(customizeSessionInformationExpiredStrategy);
-
     }
 
     public SmsAuthenticationConfig getSmsAuthenticationConfig() {
