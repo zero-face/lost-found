@@ -15,6 +15,7 @@ public class RedisUtil {
 
     @Resource
     private RedisTemplate<String,String> redisTemplate;
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -27,13 +28,13 @@ public class RedisUtil {
      * @param time 时间（秒）
      * @return
      */
-    public boolean expire(String key,long time){
-        try{
-            if (time>0){
+    public boolean expire(String key,long time) {
+        try {
+            if (time>0) {
                 redisTemplate.expire(key,time, TimeUnit.SECONDS);
             }
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -43,7 +44,7 @@ public class RedisUtil {
      * @param key key键
      * @return true存在，false不存在
      */
-    public boolean hasKey(String key){
+    public boolean hasKey(String key) {
         try {
             return stringRedisTemplate.hasKey(key);
         }catch (Exception e){

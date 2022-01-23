@@ -78,13 +78,29 @@ public class JwtTokenUtil {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    public Boolean checkIsExpired(String jwt) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        PublicKey key = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey)));
+    public Boolean checkIsExpired(String jwt) {
+        PublicKey key = null;
+        try {
+            key = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey)));
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         final Date expiration = Jwts.parser().setSigningKey(key)
                 .parseClaimsJws(jwt).getBody().getExpiration();
         if(expiration.before(new Date())) {
             return true;
         }
         return false;
+    }
+
+    public String getUsername(String token) {
+        Claims claims = null;
+        try {
+            claims = parseJwtRsa256(token);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        final String username = claims.getSubject();
+        return username;
     }
 }

@@ -2,6 +2,7 @@ package com.example.lostfound.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.core.response.CommonReturnType;
+import com.example.lostfound.entity.MessageBody;
 import com.example.lostfound.entity.TUser;
 import com.example.lostfound.service.MessageService;
 import com.example.lostfound.service.TLossThingService;
@@ -10,8 +11,11 @@ import com.example.lostfound.entity.vo.MesVO;
 import com.example.lostfound.entity.TMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,6 +37,9 @@ public class MessageController {
     private TUserService userService;
     @Autowired
     private TLossThingService lossThingService;
+
+    @Autowired
+    private SimpMessageSendingOperations simpMessageSendingOperations;
 
 
     /**
