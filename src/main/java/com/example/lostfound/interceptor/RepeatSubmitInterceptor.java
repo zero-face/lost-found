@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 /**
  * @author Zero
  * @date 2021/12/26 0:17
- * @description
+ * @description 每一次都会进入，判定是否带有重复提交的注解
  * @since 1.8
  **/
 @Component
