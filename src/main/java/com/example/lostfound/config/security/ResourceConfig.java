@@ -34,7 +34,7 @@ public class ResourceConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/api/v1/user/login",
                         "/doc.html","/webjars/**","/img.icons/**","/swagger-resources/**","/v2/api-docs",
                         "/swagger-ui.html",
-                        "/error","/**");
+                        "/error","/api/v1/user/test","/api/v1/user/mcode");
     }
 
 }

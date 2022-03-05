@@ -93,7 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/v1/user/login","/doc.html","/webjars/**","/img.icons/**",
                     "/swagger-resources/**","/v2/api-docs", "/swagger-ui.html"
                     ,"/api/v1/user/mcode","/api/v1/user/mail","/api/v1/user/image","/show","/websocket","/websocket/**",
-                    "/websocket-app","/subscribe","/js/**")
+                    "/websocket-app","/subscribe","/js/**","/api/v1/user/test")
             .permitAll()
             .anyRequest().authenticated();
         http.logout()
