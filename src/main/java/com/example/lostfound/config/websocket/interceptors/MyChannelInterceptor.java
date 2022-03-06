@@ -31,6 +31,7 @@ import java.util.Iterator;
  * @description
  * @since 1.8
  **/
+@Component
 public class MyChannelInterceptor implements ChannelInterceptor {
 
     @Value("jwt.tokenHead")
