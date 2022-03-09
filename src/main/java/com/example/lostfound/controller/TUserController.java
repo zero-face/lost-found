@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.example.lostfound.dao.TUserMapper;
 import com.example.lostfound.enums.RedisCode;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
@@ -79,6 +80,27 @@ public class TUserController extends BaseController{
     @Value("${wx.secret}")
     private String secret;
     private String OPENID_URL= "https://api.weixin.qq.com/sns/jscode2session";
+//
+//    @Autowired
+//    private TUserMapper userMapper;
+
+//    @GetMapping("/test")
+//    public String test(@RequestParam("id") Integer id, @RequestParam("name")String name) {
+//        TUser test = null;
+//        if(id != null) {
+//            if(name != null) {
+//                test = userMapper.test(id, name);
+//            } else {
+//                test = userMapper.test(id);
+//            }
+//        } else {
+//            userMapper.test();
+//        }
+//
+//        System.out.println(test);
+//        return test.toString();
+//    }
+
 
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
@@ -139,7 +161,6 @@ public class TUserController extends BaseController{
             @ApiImplicitParam(name ="mail",value = "邮箱" , required = true, paramType = "query", dataType = "String" ),
             @ApiImplicitParam(name ="mailCode",value = "验证码" , required = true, paramType = "query", dataType = "String" )
     })
-
     @PostMapping("/mail")
     public String testMailLogin() {
         return "success";

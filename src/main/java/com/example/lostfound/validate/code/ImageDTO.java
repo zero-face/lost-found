@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
  * @Since 1.8
  * @Description
  **/
-//@JsonIgnoreProperties({"code","expireTime"})
 public class ImageDTO implements Serializable {
     //验证码
     private String code;
