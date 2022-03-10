@@ -51,7 +51,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         //如果当前是连接命令
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            if(1==1) {
+            if(message.getPayload().toString().equals("ping")) {
                 return message;
             }
             //获取头部token
@@ -79,7 +79,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         }
         //如果是订阅请求
         else if(StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-            if(1==1) {
+            if(message.getPayload().toString().equals("ping")) {
                 return message;
             }
             String topic = accessor.getDestination().toString();
@@ -108,7 +108,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         }
         //如果是一个发送消息请求
         else if(StompCommand.SEND.equals(accessor.getCommand())) {
-            if(1==1) {
+            if(message.getPayload().toString().equals("ping")) {
                 return message;
             }
             String topic = accessor.getDestination().toString();
