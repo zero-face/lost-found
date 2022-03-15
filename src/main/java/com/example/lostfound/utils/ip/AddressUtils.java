@@ -30,7 +30,6 @@ public class AddressUtils {
             return "内网IP";
         }
         try {
-
             String rspStr = HttpUtil.get(IP_URL+"&ip=" + ip + "&json=true");
             if (StringUtils.isEmpty(rspStr)) {
                 log.error("获取地理位置异常 {}", ip);
@@ -41,12 +40,9 @@ public class AddressUtils {
             String city = obj.getString("city");
             return String.format("%s %s", region, city);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             log.error("获取地理位置异常 {}", ip);
         }
-
         return address;
     }
-
 }

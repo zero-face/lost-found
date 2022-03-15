@@ -10,7 +10,7 @@ import java.util.Collection;
  * @Author Zero
  * @Date 2021/7/4 15:15
  * @Since 1.8
- * @Description TODO
+ * @Description 构建一个token
  **/
 
 public class SmsAuthenticationToken extends AbstractAuthenticationToken {
