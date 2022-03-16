@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @Author Zero
  * @Date 2021/8/11 16:40
  * @Since 1.8
- * @Description
+ * @Description  存入Redis的对象
  **/
 public class ImageDTO implements Serializable {
     //验证码
