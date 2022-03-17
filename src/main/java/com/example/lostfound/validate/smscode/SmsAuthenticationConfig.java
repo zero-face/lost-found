@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * @Author Zero
  * @Date 2021/7/4 15:08
  * @Since 1.8
- * @Description TODO
+ * @Description 安全配置之注入新的登录方式
  **/
 @Component
 public class SmsAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
