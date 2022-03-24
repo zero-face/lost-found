@@ -48,7 +48,6 @@ public class SmsAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSe
         //将这个验证器加到用户名登录的后面
         http.authenticationProvider(smsAuthenticationProvider)
                 .addFilterAfter(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
     }
 
 
