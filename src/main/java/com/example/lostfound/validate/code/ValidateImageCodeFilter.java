@@ -46,7 +46,7 @@ public class ValidateImageCodeFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (StringUtils.contains(request.getRequestURI(), "login")
+        if (StringUtils.equalsIgnoreCase(request.getRequestURI(), "login")
                 && StringUtils.equalsIgnoreCase(request.getMethod(), "post")) {
             try {
                 validateCode(new ServletWebRequest(request));

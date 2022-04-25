@@ -68,12 +68,12 @@ public class TLossThingController extends BaseController{
     public CommonReturnType getAll() {
         final ArrayList<Integer> integers = new ArrayList<Integer>(){{
             add(1);
-            add(2);
+            add(5);
             add(7);
         }};
         final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>()
                 .eq(true, "status", 0).orderByDesc("gmt_create")
-                .isNotNull("picture_url").in("type",integers).last("limit 5"));
+                .isNotNull("picture_url").in("type", integers).last("limit 5"));
         if(null == list || list.size() < 1) {
             return CommonReturnType.fail(null,"获取失败");
         }
@@ -106,7 +106,7 @@ public class TLossThingController extends BaseController{
      * @return
      */
     @GetMapping("/list")
-    @RateLimiter(time = 10000,count = 1)
+    @RateLimiter(time = 2000,count = 1)
     public CommonReturnType getList() {
         //查询第pn，每页5条，不查询数据总数
         final List<TLossThing> lossThingPage = lossThingService.list(new QueryWrapper<TLossThing>()

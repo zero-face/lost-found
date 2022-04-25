@@ -31,7 +31,7 @@ public class ResourceConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(jwtIntercepter)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/api/v1/user/login",
+                .excludePathPatterns("/api/v1/user/login","/api/v1/user/code","/api/v1/lost/list","/**",
                         "/doc.html","/webjars/**","/img.icons/**","/swagger-resources/**","/v2/api-docs",
                         "/swagger-ui.html",
                         "/error","/api/v1/user/test","/api/v1/user/mcode");

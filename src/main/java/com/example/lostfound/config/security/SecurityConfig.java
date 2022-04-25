@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -68,6 +69,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userdetailservice).passwordEncoder(passwordEncoder());
     }
 
+
+
     /**
      * 设置加密方式
      * @return
@@ -90,7 +93,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(smsFilter, ValidateImageCodeFilter.class);
         http.apply(smsAuthenticationConfig);
         http.authorizeRequests()
-            .antMatchers("/api/v1/user/login","/doc.html","/webjars/**","/img.icons/**",
+            .antMatchers("/api/v1/user/login","/api/v1/user/code","/api/v1/lost/list","/**",
+                    "/doc.html",
+                    "/webjars/**","/img.icons/**",
                     "/swagger-resources/**","/v2/api-docs", "/swagger-ui.html"
                     ,"/api/v1/user/mcode","/api/v1/user/mail","/api/v1/user/image","/show","/websocket","/websocket/**",
                     "/websocket-app","/subscribe","/js/**","/api/v1/user/test")

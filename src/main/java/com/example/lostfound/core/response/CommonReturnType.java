@@ -9,6 +9,7 @@ import lombok.Data;
  */
 @Data
 public class CommonReturnType {
+
     private String status;
 
     private Object data;
