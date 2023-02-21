@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +47,6 @@ import java.util.List;
 @Api(tags = "失物模块接口")
 @Slf4j
 public class TLossThingController extends BaseController{
-
     @Autowired
     private TLossThingService lossThingService;
     @Autowired
@@ -194,9 +194,10 @@ public class TLossThingController extends BaseController{
      * @param description
      * @return
      */
-    @JsonFormat
     @RequestMapping ("/publoss")
     @RepeatSubmit(interval = 2000)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     public CommonReturnType publishLoss(@RequestParam(value = "name")String name,
                                         @RequestParam(value = "pic",required = false)String picture,
                                         @RequestParam(value = "address")String address,
@@ -210,10 +211,12 @@ public class TLossThingController extends BaseController{
             setAddress(address);
             setDescription(description);
             setLossUserId(userId);
-            setGmtCreate(time);
+//            setGmtCreate(time);
             setType(type);
             setPictureUrl(picture);
+            setLossTime(time);
         }};
+        System.out.println(tLossThing);
         final boolean save = lossThingService.save(tLossThing);
         if(save) {
             redisTemplate.opsForValue().set("LOSS_COMMENT_" + tLossThing.getId(), 0);

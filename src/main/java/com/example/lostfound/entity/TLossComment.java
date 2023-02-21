@@ -37,8 +37,6 @@ public class TLossComment implements Serializable {
 
     private String comment;
 
-
-
     private String type;
 
     @TableLogic

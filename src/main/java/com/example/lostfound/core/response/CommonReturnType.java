@@ -9,11 +9,8 @@ import lombok.Data;
  */
 @Data
 public class CommonReturnType {
-
     private String status;
-
     private Object data;
-
     private String message;
     /**
      * 成功的返回结果
@@ -23,7 +20,6 @@ public class CommonReturnType {
     public static CommonReturnType success(Object result,String message) {
         return CommonReturnType.create(result,"success",message);
     }
-
     /**
      * 没有描述的成功返回结果
      * @param result
@@ -40,7 +36,6 @@ public class CommonReturnType {
     public static CommonReturnType fail(Object result,String message) {
         return CommonReturnType.create(result,"fail", message);
     }
-
     /**
      * 没有描述信息的失败返回结果
      * @param result
@@ -58,7 +53,6 @@ public class CommonReturnType {
     public static CommonReturnType create(Object result,String message) {
         return CommonReturnType.create(result,"success", message);
     }
-
     /**
      * 没有描述信息返回
      * @param result

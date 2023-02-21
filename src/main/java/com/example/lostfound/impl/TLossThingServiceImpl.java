@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossThing> implements TLossThingService {
-
     @Autowired
     private TLossThingMapper lossThingMapper;
     @Autowired
@@ -43,14 +42,12 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
     private TUserService userService;
     @Autowired
     private TThingTypeService thingTypeService;
-
     @Override
     @CachePut(value = "redisCache",key = "'RedisLose' + #search")
     public List<TLossThing> getLossBySearchAndTime(String search, Integer time) {
         final List<TLossThing> tLossThings = lossThingMapper.getLossBySearchAndTime(search, time);
         return tLossThings;
     }
-
     @Override
     public List<LossThingVO> converToLossVO(List<TLossThing> list) {
         final List<LossThingVO> collect = list.stream().map(vo -> {
@@ -67,7 +64,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         }).collect(Collectors.toList());
         return collect;
     }
-
     @Override
     public LossDetailVO converTOLossDetailVO(TLossThing loss) {
         if(loss == null) {
@@ -90,7 +86,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         lossDetailVO.setType(id.getType());
         return lossDetailVO;
     }
-
     @Override
     public String uploadImage(MultipartFile file) {
         if(null == file) {
@@ -102,7 +97,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         }
         return null;
     }
-
     @Override
     public AuditVO packageNotifyMes(Integer id, Integer userId, Integer lossId) {
         final TLossThing lossThing = lossThingMapper.selectOne(new QueryWrapper<TLossThing>().eq("id", lossId));

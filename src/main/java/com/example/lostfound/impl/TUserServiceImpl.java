@@ -37,14 +37,12 @@ import java.util.Map;
 @Service
 @Slf4j
 public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements TUserService {
-
     @Autowired
     private TUserMapper userMapper;
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
     private RestTemplate restTemplate;
-
     /**
      * 查询除了自己之外的用户
      * @param username

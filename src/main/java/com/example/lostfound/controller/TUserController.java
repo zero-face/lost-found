@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.example.lostfound.dao.TUserMapper;
 import com.example.lostfound.enums.RedisCode;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
@@ -19,8 +18,9 @@ import com.example.lostfound.validate.code.ImageDTO;
 import com.example.lostfound.validate.smscode.SmsCode;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,35 +55,25 @@ import java.util.concurrent.TimeUnit;
 @Api(tags = "用户登录注册接口")
 @RestController
 @RequestMapping("/api/v1/user")
-@Slf4j
 @Validated
 public class TUserController extends BaseController{
+    protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
-
     @Autowired
     private MailUtils mailUtils;
-
     @Autowired
     private TUserService userService;
-
     @Value("${wx.appid}")
     private String appid;
-
     @Value("${wx.secret}")
     private String secret;
     private String OPENID_URL= "https://api.weixin.qq.com/sns/jscode2session";
-//
-//    @Autowired
-//    private TUserMapper userMapper;
-
 //    @GetMapping("/test")
 //    public String test(@RequestParam("id") Integer id, @RequestParam("name")String name) {
 //        TUser test = null;
@@ -100,8 +90,6 @@ public class TUserController extends BaseController{
 //        System.out.println(test);
 //        return test.toString();
 //    }
-
-
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParam(name = "mail", value = "邮箱" , required = true, paramType = "query", dataType = "String")
@@ -117,6 +105,7 @@ public class TUserController extends BaseController{
             log.info("邮件发送失败！");
            throw new BusinessException(EmBusinessError.EMAIL_SEND_FAILURE);
         }
+        log.info("邮件发送给"+ mail +"成功");
         System.out.println("您的验证码信息为：" + smsCode.getCode() + "有效时间为：" + smsCode.getExpireTime());
         return CommonReturnType.success(smsCode.getCode(),"发送成功");
     }

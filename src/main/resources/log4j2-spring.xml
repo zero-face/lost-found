@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="cn.arros.plugin.core.log.log4j2" strict="true">
+    <Properties>
+        <Property name="LOG_HOME">./plugin-logs/</Property>
+    </Properties>
+    <Appenders>
+        <!--*********************WebSocket日志***********************-->
+        <Appender type="LogCollectorAppender" name="ArrosLogCollector">
+            <Layout type="PatternLayout"
+                    pattern="%d [%t] %-5level: %msg%n%throwable"/>
+            <!--TODO：临时使用字符串匹配关键字过滤，不能保证完全避免问题，而且并不优雅，后期可以考虑别的办法-->
+            <!--问题: 在debug级别下，当WebSocket消息发出后会产生一条日志，这条日志会导致WebSocketAppender又发送日志，就导致死循环-->
+            <Filters>
+                <PatternLayout
+                        pattern="%style{%d{ISO8601}}{bright,green} %highlight{%-5level} [%style{%t}{bright,blue}] %style{%C{}}{bright,yellow}: %msg%n%style{%throwable}{red}"
+                        disableAnsi="false"
+                        noConsoleNoAnsi="false"/>
+            </Filters>
+        </Appender>
+
+        <!--*********************控制台日志***********************-->
+        <Appender type="Console" name="consoleAppender" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%style{%d{ISO8601}}{bright,green} %highlight{%-5level} [%style{%t}{bright,blue}] %style{%C{}}{bright,yellow}: %msg%n%style{%throwable}{red}"
+                    disableAnsi="false"
+                    noConsoleNoAnsi="false"/>
+
+        </Appender>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="ArrosLogCollector"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

@@ -26,14 +26,12 @@ import java.util.stream.Collectors;
  */
 @Service
 public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLossComment> implements TLossCommontService {
-
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
     private TLossCommontMapper lossCommontMapper;
     @Autowired
     private TUserService userService;
-
     /**
      * 评论自增一
      * @param lossId
@@ -44,13 +42,11 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
         final Long increment = redisTemplate.opsForValue().increment("LOSS_COMMENT_" + lossId, 1);
         return increment;
     }
-
     @Override
     public Long deleteCommentNum(Integer lossId) {
         final Long increment = redisTemplate.opsForValue().increment("LOSS_COMMENT_" + lossId, -1);
         return increment;
     }
-
     /**
      * 拿到评论数量
      * @param lossId
@@ -62,7 +58,6 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
 
         return o;
     }
-
     /**
      * 获取所有评论信息
      * @param lossId
