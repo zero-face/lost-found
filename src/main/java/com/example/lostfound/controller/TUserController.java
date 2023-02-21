@@ -31,6 +31,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
@@ -120,6 +121,9 @@ public class TUserController extends BaseController{
         System.out.println("您的验证码信息为：" + smsCode.getCode() + "有效时间为：" + smsCode.getExpireTime());
         return CommonReturnType.success(smsCode.getCode(),"发送成功");
     }
+
+//    @Resource
+//    private StartPlug startPlug;
 
     @ApiOperation("图形验证码获取")
     @ApiOperationSupport(author = "zero")

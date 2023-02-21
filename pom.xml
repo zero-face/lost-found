@@ -18,6 +18,26 @@
     </properties>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-spring-cloud-config-client -->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.logging.log4j</groupId>-->
+<!--            <artifactId>log4j-spring-cloud-config-client</artifactId>-->
+<!--            <version>2.13.1</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>commons-logging</groupId>-->
+<!--            <artifactId>commons-logging</artifactId>-->
+<!--            <version>1.2</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.logging.log4j</groupId>-->
+<!--            <artifactId>log4j-api</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>cn.arros.plugin</groupId>-->
+<!--            <artifactId>plugin-core</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--        </dependency>-->
         <!--stomp依赖项-->
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -46,11 +66,11 @@
 <!--            <artifactId>spring-boot-starter-thymeleaf</artifactId>-->
 <!--        </dependency>-->
         <!--自动部署-->
-        <dependency>
-            <groupId>com.zero</groupId>
-            <artifactId>auto-deploy</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.zero</groupId>-->
+<!--            <artifactId>auto-deploy</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -148,11 +168,7 @@
             <artifactId>velocity-engine-core</artifactId>
             <version>2.2</version>
         </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.7.2</version>
-        </dependency>
+
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
@@ -191,6 +207,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
@@ -228,6 +245,17 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
             <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <!--排除默认的日志-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.springframework.boot</groupId>-->
+<!--                    <artifactId>spring-boot-starter-logging</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
         </dependency>
     </dependencies>
 

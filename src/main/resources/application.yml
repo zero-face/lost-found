@@ -1,5 +1,13 @@
 server:
-  port: 8888
+  port: 9990
 spring:
   profiles:
     active: dev
+  application:
+    name: lost&found
+#logging:
+#  config: classpath:log4j2.yml
+#  file:
+#    path: ./logs
+#    name: ${spring.application.name}
+
