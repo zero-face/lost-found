@@ -3,6 +3,7 @@ package com.example.lostfound.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.lostfound.config.websocket.handler.SessionHandler;
 import com.example.lostfound.core.response.CommonReturnType;
 import com.example.lostfound.entity.*;
 import com.example.lostfound.entity.vo.LossCommentVO;
@@ -10,6 +11,7 @@ import com.example.lostfound.service.MessageService;
 import com.example.lostfound.service.TLossCommontService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
+import com.example.lostfound.utils.MesUtil;
 import com.example.lostfound.utils.NotifyUtil;
 import com.example.lostfound.entity.TMessage;
 import io.swagger.annotations.Api;
@@ -53,6 +55,9 @@ public class TLossCommontController extends BaseController{
     @Autowired
     private MessageService messageService;
 
+    @Autowired
+    private SessionHandler sessionHandler;
+
     /**
      * 发布评论
      * @param comment
@@ -67,28 +72,22 @@ public class TLossCommontController extends BaseController{
                                          @RequestParam(value = "lossId")Integer lossId, //在哪条失物下面评论
                                          @RequestParam(value = "userId")@NotNull Integer userId, //品论人的userid
                                          @RequestParam(value = "type")String type,  //属于几级评论
-                                         @RequestParam(value = "fatherId",required = false)Integer fatherId //评论的fatherid
+                                         @RequestParam(value = "fatherId",required = false)Integer fatherId, //评论的fatherid
+                                         @RequestParam(value = "toUserId") Integer toUserId
                                          ){
+        final TUser nameOrId = userService.getUserInfoByNameOrId(null, toUserId);
         TLossComment lossCommont = new TLossComment() {{
             setComment(comment);
             setType(type);
             setUserId(userId);
+            setToUserName(nameOrId.getNickName());
             setFatherId(fatherId ==  0 ? null : fatherId);
             setLostThingId(lossId);
         }};
         final boolean save = lossCommontService.save(lossCommont);
         if(save) {
-            //评论数量自增1
-            final Long num = lossCommontService.addCommentNum(lossId);
-            //存入点赞量
-            lossCommontService.setLikes(lossCommont.getId(), lossId);
-            final HashMap<String, Object> stringObjectHashMap = new HashMap<String,Object>(){{
-                put("commentNum",num);
-            }};
             final CommonReturnType allComments = getAllComments(lossId);
             if(allComments.getStatus() !="success") {
-                //删除评论数
-                lossCommontService.deleteCommentNum(lossId);
                 //删除数据库中的评论
                 lossCommontService.removeById(lossCommont.getId());
                 return CommonReturnType.fail("系统错误","评论失败");
@@ -96,20 +95,26 @@ public class TLossCommontController extends BaseController{
             final TLossComment id = lossCommontService.getOne(new QueryWrapper<TLossComment>().eq("lost_thing_id", lossId).last("limit 1"));
             final TLossThing one = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("id", id.getLostThingId()));
             final TUser user = userService.getOne(new QueryWrapper<TUser>().eq("id", one.getLossUserId()));
-            final TMessage mesVO = new TMessage();
-//            mesVO.setName(one.getName());
-            mesVO.setFlag(true);
-//            mesVO.setAddressUrl(user.getAddressUrl());
-            mesVO.setMessage(comment);
-//            mesVO.setNickName(user.getNickName());
-            mesVO.setType("2"); //评论消息
-            mesVO.setStatus(true);
-            mesVO.setFroms(userId);
-            mesVO.setToo(one.getLossUserId());
-            messageService.save(mesVO);
-            if(!userId .equals( user.getId()) || fatherId .equals(userId) ) {
-                notifyUtil.publish(JSON.toJSONString(mesVO),one.getLossUserId().toString());
+
+            // 自己在自己评论区不需要发送消息
+            if(userId != toUserId) {
+                // 发送异步消息给对方
+                final TMessage commentMes = new TMessage();
+                commentMes.setFroms(userId);
+                commentMes.setLossId(lossId);
+                commentMes.setToo(toUserId);
+                commentMes.setMsgState("0"); // 默认已读
+                commentMes.setSendText(comment);
+                commentMes.setTextType("0"); // 文字评论
+                commentMes.setType("2"); //聊天通知
+//            if(!sessionHandler.isOnline(String.valueOf(toUserId))) {
+                log.warn(toUserId + "不在线，开始微信通知");
+                final String sessionId = MesUtil.generateSessionId(String.valueOf(userId), String.valueOf(toUserId));
+                commentMes.setChatSessionId(sessionId);
+                lossCommontService.commentNotify(commentMes);
+//            }
             }
+
             return allComments;
         }
         return CommonReturnType.fail("系统错误","评论失败");

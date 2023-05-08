@@ -1,5 +1,6 @@
 package com.example.lostfound.service;
 
+import com.example.lostfound.entity.TMessage;
 import com.example.lostfound.entity.vo.AuditVO;
 import com.example.lostfound.entity.vo.LossDetailVO;
 import com.example.lostfound.entity.vo.LossThingVO;
@@ -25,4 +26,5 @@ public interface TLossThingService extends IService<TLossThing> {
     String uploadImage(MultipartFile file);
     AuditVO packageNotifyMes(Integer id,Integer userId,Integer lossId);
 
+    void pubNotify(TMessage pubLossMes, TLossThing lossThing);
 }

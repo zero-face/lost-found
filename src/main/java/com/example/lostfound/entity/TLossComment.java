@@ -37,9 +37,9 @@ public class TLossComment implements Serializable {
 
     private String comment;
 
-
-
     private String type;
+
+    private String toUserName;
 
     @TableLogic
     private Boolean isDelete;

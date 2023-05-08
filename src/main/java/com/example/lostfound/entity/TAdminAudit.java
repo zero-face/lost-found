@@ -31,23 +31,23 @@ public class TAdminAudit {
 
     private Integer lossId;
 
+    private Integer foundId;
+
     private Integer userId;
 
-    private Boolean status;
+    private String status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
     @TableField(fill = FieldFill.INSERT)
     private Date gmtCreate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
     private Integer adminId;
+
+    private String des;
 
     @TableLogic
     private Boolean isDelete;

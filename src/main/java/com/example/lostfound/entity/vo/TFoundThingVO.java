@@ -36,7 +36,7 @@ public class TFoundThingVO {
 
     private String description;
 
-    private Integer status;
+    private Boolean status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date gmtCreate;

@@ -68,7 +68,7 @@ public class RedisUtil {
      */
     @SuppressWarnings("unchecked") //抑制单类型警告：在强制型转换的时候编译器会给出警告
     public void delete(String ... key){
-        if(key!=null&&key.length>0){
+        if(key!=null && key.length>0){
             if(key.length==1){
                 redisTemplate.delete(key[0]);
             }else {

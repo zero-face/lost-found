@@ -2,10 +2,12 @@ package com.example.lostfound.controller;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.example.lostfound.dao.TUserMapper;
+import com.example.lostfound.entity.wxTemplate.PubNotify;
+import com.example.lostfound.entity.wxTemplate.WxEntity;
 import com.example.lostfound.enums.RedisCode;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
@@ -19,8 +21,9 @@ import com.example.lostfound.validate.code.ImageDTO;
 import com.example.lostfound.validate.smscode.SmsCode;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +34,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
-import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
@@ -56,53 +58,43 @@ import java.util.concurrent.TimeUnit;
 @Api(tags = "用户登录注册接口")
 @RestController
 @RequestMapping("/api/v1/user")
-@Slf4j
 @Validated
 public class TUserController extends BaseController{
+    protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
-
     @Autowired
     private MailUtils mailUtils;
-
     @Autowired
     private TUserService userService;
-
     @Value("${wx.appid}")
     private String appid;
-
     @Value("${wx.secret}")
     private String secret;
     private String OPENID_URL= "https://api.weixin.qq.com/sns/jscode2session";
-//
-//    @Autowired
-//    private TUserMapper userMapper;
 
-//    @GetMapping("/test")
-//    public String test(@RequestParam("id") Integer id, @RequestParam("name")String name) {
-//        TUser test = null;
-//        if(id != null) {
-//            if(name != null) {
-//                test = userMapper.test(id, name);
-//            } else {
-//                test = userMapper.test(id);
-//            }
-//        } else {
-//            userMapper.test();
-//        }
-//
-//        System.out.println(test);
-//        return test.toString();
-//    }
+    @Autowired
+    private WxUtil wxUtil;
 
-
+    @GetMapping("/test")
+    public String test() {
+        final String accessToken = wxUtil.getAccessToken();
+        System.out.println(accessToken);
+        final PubNotify pubNotify = new PubNotify() {{
+            setThing2(new WxEntity("捡到在而餐厅"));
+            setThing1(new WxEntity("一个钱包"));
+            setTime3(new WxEntity("2023年3月20日"));
+            setPhrase4(new WxEntity("审核通过"));
+        }};
+        final Map<String, Object> notifyBody = wxUtil.builderPub("o7ji04mTTVLYFGRSKXGNmaLjodn4", pubNotify);
+        wxUtil.postSubMes(accessToken, notifyBody);
+        return null;
+    }
     @ApiOperation("邮箱登录获取验证码")
     @ApiOperationSupport(author = "zero")
     @ApiImplicitParam(name = "mail", value = "邮箱" , required = true, paramType = "query", dataType = "String")
@@ -118,6 +110,7 @@ public class TUserController extends BaseController{
             log.info("邮件发送失败！");
            throw new BusinessException(EmBusinessError.EMAIL_SEND_FAILURE);
         }
+        log.info("邮件发送给"+ mail +"成功");
         System.out.println("您的验证码信息为：" + smsCode.getCode() + "有效时间为：" + smsCode.getExpireTime());
         return CommonReturnType.success(smsCode.getCode(),"发送成功");
     }
@@ -251,7 +244,8 @@ public class TUserController extends BaseController{
                                                    @RequestParam("tel") String tel,
                                                    @RequestParam("collage") String collage,
                                                    @RequestParam("clazz") String clazz,
-                                                   @RequestParam("uid") Integer id) {
+                                                   @RequestParam("uid") Integer id,
+                                                   @RequestParam("mail") String mail) {
         final TUser id1 = userService.getOne(new QueryWrapper<TUser>().eq("id", id));
         if(null == id1) {
             return CommonReturnType.fail("没有该用户","获取失败");
@@ -261,6 +255,7 @@ public class TUserController extends BaseController{
         id1.setTel(tel);
         id1.setCollage(collage);
         id1.setClazz(clazz);
+        id1.setMail(mail);
         id1.setIsTrue(true);
         userService.update(id1, new UpdateWrapper<TUser>().eq("id", id));
         return CommonReturnType.success(null,"认证成功");
@@ -340,16 +335,15 @@ public class TUserController extends BaseController{
             System.out.println("userinfo"+tUser);
             userService.update(tUser,new UpdateWrapper<TUser>().eq("open_id", openid));
         }
-        final Map<String, Object> maps = new HashMap<String, Object>(){{
-            put("username", user.getNickName());
-        }};
-        final String token = jwtTokenUtil.generateToken(maps, user.getNickName(), 24 * 60 * 60 * 1000);
+
         final TUser id = userService.getOne(new QueryWrapper<TUser>().eq("open_id", openid));
+        final Map<String, Object> maps = new HashMap<String, Object>();
         final UserVO userVO = new UserVO();
         BeanUtils.copyProperties(id, userVO);
         Map<String, Object> reToken = JSON.parseObject(JSON.toJSONString(userVO), new TypeReference<Map<String,
                 Object>>() {
         });
+        String token = jwtTokenUtil.generateToken(maps, id.getId().toString(), 24 * 60 * 60 * 1000);
         reToken.put("token",token);
         return CommonReturnType.success(reToken);
     }

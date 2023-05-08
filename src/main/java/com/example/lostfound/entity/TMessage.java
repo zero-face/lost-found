@@ -1,8 +1,6 @@
 package com.example.lostfound.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -27,31 +26,44 @@ import java.util.Date;
 @ToString
 @TableName("t_message")
 public class TMessage {
-    private String id;
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
     //发送者
     private Integer froms;
+
+    private String chatSessionId;
+
     //接收者
     private Integer too;
+
     //消息
-    private String message;
-    //是否定向发送
-    private Boolean flag;
+    private String sendText;
+
+    private Integer lossId;
+
+    //标志在线或者离线消息 0 未读 1 已读
+    private String msgState;
+
+    // 标记消息：0-文字、表情 1-图片 2-音频 3-位置 4-订单
+    private String textType;
+
+    //消息类型 系统通知-0 聊天-1 评论-2 消息反馈-3 管理员消息-4
+    private String type;
+
     //发送时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+//    @JsonSerialize(using = LocalDateTimeSerializer.class)
     @TableField(fill = FieldFill.INSERT)
     private Date gmtCreate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+//    @JsonSerialize(using = LocalDateTimeSerializer.class)
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
-
-    //标志在线或者离线消息
-    private Boolean status;
-
-    //消息类型
-    private String type;
 }

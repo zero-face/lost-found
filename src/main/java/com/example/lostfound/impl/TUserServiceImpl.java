@@ -37,14 +37,12 @@ import java.util.Map;
 @Service
 @Slf4j
 public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements TUserService {
-
     @Autowired
     private TUserMapper userMapper;
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
     private RestTemplate restTemplate;
-
     /**
      * 查询除了自己之外的用户
      * @param username
@@ -136,7 +134,8 @@ public class TUserServiceImpl extends ServiceImpl<TUserMapper, TUser> implements
 
     @Override
     public TUser getUserInfoByNameOrId(String username, Integer id) {
-        final TUser nick_name = userMapper.selectOne(new QueryWrapper<TUser>().eq(id != null,"id", id).eq(username!=null, "nick_name",username));
+        final TUser nick_name = userMapper.selectOne(new QueryWrapper<TUser>().eq(id != null,"id", id)
+                .eq(username != null, "nick_name",username).last("limit 1"));
         return nick_name;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.lostfound.controller;
 
 
+import com.example.lostfound.config.DateConverter;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.error.EmBusinessError;
 import com.example.lostfound.core.error.ErrorMsgType;
@@ -11,11 +12,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
+import java.beans.PropertyEditorSupport;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class BaseController {
     protected static final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -62,6 +62,23 @@ public class BaseController {
 
     protected ErrorMsgType packErrorCommonReturnType(int errorCode, String errorMsg){
         return new ErrorMsgType(errorCode, errorMsg);
+
+    }
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        // 注册converter
+        binder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) throws IllegalArgumentException {
+                setValue(new DateConverter().convert(text));
+            }
+        });
+//        binder.registerCustomEditor(LocalDateTime.class, new PropertyEditorSupport() {
+//            @Override
+//            public void setAsText(String text) throws IllegalArgumentException {
+//                setValue(new LocalDateTimeConverter().convert(text));
+//            }
+//        });
 
     }
 }

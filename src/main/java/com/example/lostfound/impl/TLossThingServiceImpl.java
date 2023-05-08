@@ -1,5 +1,6 @@
 package com.example.lostfound.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.dao.TLossThingMapper;
 import com.example.lostfound.entity.*;
@@ -7,19 +8,24 @@ import com.example.lostfound.entity.*;
 import com.example.lostfound.entity.vo.AuditVO;
 import com.example.lostfound.entity.vo.LossDetailVO;
 import com.example.lostfound.entity.vo.LossThingVO;
-import com.example.lostfound.service.TLossCommontService;
-import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.entity.wxTemplate.PubNotify;
+import com.example.lostfound.entity.wxTemplate.WxEntity;
+import com.example.lostfound.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lostfound.service.TThingTypeService;
-import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.OSSUtil;
+import com.example.lostfound.utils.WxUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +38,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossThing> implements TLossThingService {
-
     @Autowired
     private TLossThingMapper lossThingMapper;
     @Autowired
@@ -43,6 +48,12 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
     private TUserService userService;
     @Autowired
     private TThingTypeService thingTypeService;
+    @Autowired
+    private SimpMessagingTemplate template;
+    @Autowired
+    private WxUtil wxUtil;
+    @Autowired
+    private MessageService messageService;
 
     @Override
     @CachePut(value = "redisCache",key = "'RedisLose' + #search")
@@ -50,7 +61,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         final List<TLossThing> tLossThings = lossThingMapper.getLossBySearchAndTime(search, time);
         return tLossThings;
     }
-
     @Override
     public List<LossThingVO> converToLossVO(List<TLossThing> list) {
         final List<LossThingVO> collect = list.stream().map(vo -> {
@@ -67,7 +77,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         }).collect(Collectors.toList());
         return collect;
     }
-
     @Override
     public LossDetailVO converTOLossDetailVO(TLossThing loss) {
         if(loss == null) {
@@ -90,7 +99,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         lossDetailVO.setType(id.getType());
         return lossDetailVO;
     }
-
     @Override
     public String uploadImage(MultipartFile file) {
         if(null == file) {
@@ -102,7 +110,6 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         }
         return null;
     }
-
     @Override
     public AuditVO packageNotifyMes(Integer id, Integer userId, Integer lossId) {
         final TLossThing lossThing = lossThingMapper.selectOne(new QueryWrapper<TLossThing>().eq("id", lossId));
@@ -117,4 +124,35 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
         }};
         return auditVO;
     }
+
+    @Override
+    public void pubNotify(TMessage pubLossMes, TLossThing lossThing) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                final TUser user = userService.getOne(new QueryWrapper<TUser>().eq("id", pubLossMes.getToo()));
+                String notifyContent = user.getNickName() + "发布了一条失物招领信息";
+                pubLossMes.setSendText(notifyContent);
+                // 线上消息发送
+                template.convertAndSend("/exchange/sendToUser/" + pubLossMes.getToo(), JSON.toJSONString(pubLossMes));
+                // 微信通知
+                final String openId = user.getOpenId();
+                final String accessToken = wxUtil.getAccessToken();
+                final PubNotify pubNotify = new PubNotify() {{
+                    setThing2(new WxEntity(lossThing.getDescription()));
+                    setThing1(new WxEntity(lossThing.getName()));
+                    setTime3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lossThing.getGmtCreate())));
+                    setPhrase4(new WxEntity("待审核"));
+                }};
+                final Map<String, Object> notifyBody = wxUtil.builderPub(openId, pubNotify);
+                wxUtil.postSubMes(accessToken, notifyBody);
+                messageService.save(pubLossMes);
+            }catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        });
+    }
+
+
 }

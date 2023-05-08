@@ -2,6 +2,7 @@ package com.example.lostfound.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.lostfound.entity.TAdminAudit;
+import com.example.lostfound.entity.TMessage;
 
 /**
  * @Author Zero
@@ -10,4 +11,5 @@ import com.example.lostfound.entity.TAdminAudit;
  * @Description
  **/
 public interface TAdminAuditService extends IService<TAdminAudit> {
+    void checkNotify(Integer lossId, TMessage messageVO, Integer type);
 }

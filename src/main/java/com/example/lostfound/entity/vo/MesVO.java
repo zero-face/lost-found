@@ -7,40 +7,48 @@ package com.example.lostfound.entity.vo;
  * @Description
  **/
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@TableName("t_message")
 public class MesVO {
-    private String id;
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
     //发送者
     private Integer froms;
+
+    private String chatSessionId;
+
     //接收者
     private Integer too;
-    //消息
-    private String message;
-    //是否定向发送
-    private Boolean flag;
-    //发送时间
-    @TableField(fill = FieldFill.INSERT)
-    private Long sendTime;
 
-    //标志在线或者离线消息
-    private Boolean status;
-    //消息类型
+    //消息
+    private String sendText;
+
+    //标志在线或者离线消息 0 已读 1 未读
+    private String msgState;
+
+    // 标记消息：0-文字、表情 1-图片 2-音频 3-位置
+    private String textType;
+
+    //消息类型 系统通知-0 聊天-1 评论-2 消息反馈-3
     private String type;
 
-    private String addressUrl;
+    //发送时间
+    private Date gmtCreate;
 
-    private String nickName;
+    private Date gmtModified;
 
-    private String name;
+    private String userName;
 }

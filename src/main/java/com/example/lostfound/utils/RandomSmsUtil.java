@@ -14,7 +14,7 @@ public class RandomSmsUtil {
 
     private final  static int expiredTime = 300;
     public static SmsCode createSMSCode() {
-        String smsCode = RandomStringUtils.randomNumeric(6);
+        String smsCode = RandomStringUtils.randomNumeric(4);
         return new SmsCode(smsCode, expiredTime);
     }
 }

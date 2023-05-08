@@ -25,6 +25,8 @@ public class LossCommentVO {
 
     private Integer userId;
 
+    private String toUserName;
+
     private Integer lostThingId;
 
     private String nickName;

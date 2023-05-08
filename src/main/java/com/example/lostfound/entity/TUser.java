@@ -53,6 +53,8 @@ public class TUser implements Serializable {
     @ApiModelProperty(value = "QQ")
     private String qq;
 
+    private String mail;
+
     @ApiModelProperty(value = "学院")
     private String collage;
 

@@ -59,6 +59,8 @@ public class UserVO {
     @ApiModelProperty(value = "头像地址")
     private String addressUrl;
 
+    private String mail;
+
     @ApiModelProperty(value = "上次登录时间")
     private Date gmtModified;
 

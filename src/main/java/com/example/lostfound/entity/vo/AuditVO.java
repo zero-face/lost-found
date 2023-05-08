@@ -44,18 +44,26 @@ public class AuditVO {
      */
     private String picUrl;
 
+    private String des;
+
+    private String status;
+
     /**
      * 管理员id
      */
     private Integer adminId;
 
     /**
-     * 申请人id
+     * 申请人失物ID
      */
     private Integer applyId;
+
+    private Integer userId;
 
     /**
      * 申请时间
      */
     private Date gmtCreate;
+
+    private Date gmtModified;
 }

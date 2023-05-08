@@ -7,8 +7,9 @@
             <if test="time != null">
                 loss_time >= date_sub(current_date(), interval #{time} day)
             </if>
-                 AND description like CONCAT('%', #{search} ,'%')
                  AND status = 0
+                 AND description like CONCAT('%', #{search} ,'%')
+                 OR  name like CONCAT('%', #{search} ,'%')
         </where>
     </select>
 </mapper>

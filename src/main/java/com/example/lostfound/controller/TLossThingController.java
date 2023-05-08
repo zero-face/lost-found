@@ -11,10 +11,8 @@ import com.example.lostfound.entity.*;
 import com.example.lostfound.entity.vo.AuditVO;
 import com.example.lostfound.entity.vo.LossDetailVO;
 import com.example.lostfound.entity.vo.LossThingVO;
-import com.example.lostfound.service.TAdminAuditService;
-import com.example.lostfound.service.TLossCommontService;
-import com.example.lostfound.service.TLossThingService;
-import com.example.lostfound.service.TUserService;
+import com.example.lostfound.service.*;
+import com.example.lostfound.utils.MesUtil;
 import com.example.lostfound.utils.NotifyUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.Api;
@@ -23,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +45,6 @@ import java.util.List;
 @Api(tags = "失物模块接口")
 @Slf4j
 public class TLossThingController extends BaseController{
-
     @Autowired
     private TLossThingService lossThingService;
     @Autowired
@@ -57,8 +55,10 @@ public class TLossThingController extends BaseController{
     private NotifyUtil notifyUtil;
     @Autowired
     private TUserService userService;
+
+
     @Autowired
-    private TLossCommontService lossCommontService;
+    private TFoundLossService foundLossService;
 
     /**
      * 拿出重要数据轮播展示
@@ -69,7 +69,7 @@ public class TLossThingController extends BaseController{
         final ArrayList<Integer> integers = new ArrayList<Integer>(){{
             add(1);
             add(5);
-            add(7);
+            add(6);
         }};
         final List<TLossThing> list = lossThingService.list(new QueryWrapper<TLossThing>()
                 .eq(true, "status", 0).orderByDesc("gmt_create")
@@ -87,17 +87,21 @@ public class TLossThingController extends BaseController{
      * @return
      */
     @GetMapping("/{pn}")
-    @CachePut(value = "redisCache",key = "'RedisLose'+ #pn")
+//    @CachePut(value = "redisCache",key = "'RedisLose'+ #pn")
     public CommonReturnType getAllLost(@PathVariable("pn")Integer pn) {
         //查询第pn，每页5条，不查询数据总数
         final Page<TLossThing> page = new Page<>(pn, 5,false);
         final Page<TLossThing> lossThingPage = lossThingService.page(page,new QueryWrapper<TLossThing>()
                 .eq("status", 0).orderByDesc("gmt_create"));
         final List<TLossThing> records = lossThingPage.getRecords();
-        if(records != null || records.size() > 0) {
+        if(records != null) {
+            if(records.size() == 0) {
+                return CommonReturnType.fail(null, "没有更多物品了");
+            }
             final List<LossThingVO> lossThingVOS = lossThingService.converToLossVO(records);
             return CommonReturnType.success(lossThingVOS,"查询成功");
         }
+
         return CommonReturnType.fail(null, "查询失败");
     }
 
@@ -116,7 +120,6 @@ public class TLossThingController extends BaseController{
             return CommonReturnType.success(lossThingVOS,"查询成功");
         }
         return CommonReturnType.fail(null, "查询失败");
-
     }
 
     /**
@@ -194,9 +197,10 @@ public class TLossThingController extends BaseController{
      * @param description
      * @return
      */
-    @JsonFormat
     @RequestMapping ("/publoss")
     @RepeatSubmit(interval = 2000)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     public CommonReturnType publishLoss(@RequestParam(value = "name")String name,
                                         @RequestParam(value = "pic",required = false)String picture,
                                         @RequestParam(value = "address")String address,
@@ -210,13 +214,34 @@ public class TLossThingController extends BaseController{
             setAddress(address);
             setDescription(description);
             setLossUserId(userId);
-            setGmtCreate(time);
+//            setGmtCreate(time);
             setType(type);
             setPictureUrl(picture);
+            setLossTime(time);
+            setStatus(true);
         }};
         final boolean save = lossThingService.save(tLossThing);
         if(save) {
-            redisTemplate.opsForValue().set("LOSS_COMMENT_" + tLossThing.getId(), 0);
+            // 通知管理员审核
+            final TMessage pubLossMes = new TMessage();
+            pubLossMes.setFroms(userId);
+//            pubLossMes.setLossId(lossId);
+            pubLossMes.setToo(1);
+            pubLossMes.setMsgState("1"); // 默认已读
+            pubLossMes.setTextType("0"); // 文字评论
+            pubLossMes.setType("4"); // 发布通知
+
+            final String sessionId = MesUtil.generateSessionId(String.valueOf(userId), "1");
+            pubLossMes.setChatSessionId(sessionId);
+            lossThingService.pubNotify(pubLossMes, tLossThing);
+
+            // 插入管理员表
+            final TAdminAudit admin = new TAdminAudit(){{
+                setLossId(tLossThing.getId());
+                setUserId(userId);
+                setStatus("0");
+            }};
+            adminAuditService.save(admin);
             return CommonReturnType.success(null,"发布成功");
         }
         return CommonReturnType.fail(null,"发布失败");
@@ -240,26 +265,36 @@ public class TLossThingController extends BaseController{
     /**
      * 申请认领
      * @param lossId
-     * @param userId
+     * @param
      * @return
      */
     @GetMapping("/claim")
     public CommonReturnType claim(@RequestParam("lossId")Integer lossId,
-                                  @RequestParam("userId")Integer userId) {
-        //构建一条审核信息
-        final TAdminAudit tAdminAudit = new TAdminAudit() {{
-            setLossId(lossId);
-            setUserId(userId);
-        }};
-        //存入数据库
-        adminAuditService.save(tAdminAudit);
-        //实时通知后台，goeasy
-        final AuditVO auditVO = lossThingService.packageNotifyMes(tAdminAudit.getId(),userId, lossId);
-        final boolean publish = notifyUtil.publish(JSON.toJSONString(auditVO),"user_notify_admin");
-        if(publish) {
-            return CommonReturnType.success(tAdminAudit,"申请成功");
+                                  @RequestParam("claimId")Integer claimId,
+                                  @RequestParam("checker") Integer checkId) {
+        // 检查操作人是否是发布人
+        final TLossThing one = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("loss_user_id", checkId)
+                .eq("id", lossId).eq("status", 0));
+        if(one == null) {
+            return CommonReturnType.fail(null,"物品已经被认领");
         }
-        return CommonReturnType.fail(null,"申请失败");
+        final TLossThing lossThing = new TLossThing() {{
+            setId(lossId);
+            setStatus(true);
+        }};
+        final boolean update = lossThingService.update(lossThing, new QueryWrapper<TLossThing>().eq("id", lossId));
+
+        if(update) {
+            final TFoundLoss foundLoss = new TFoundLoss() {{
+                setLossId(lossId);
+                setUserId(claimId);
+
+            }};
+            foundLossService.save(foundLoss);
+            return CommonReturnType.success(null,"操作成功");
+        }
+        return CommonReturnType.fail(null,"操作失败");
+
     }
 }
 

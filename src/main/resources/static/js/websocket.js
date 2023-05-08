@@ -1,10 +1,11 @@
 var stompClient = null;
 var wsCreateHandler = null;
-var userId = null;
+var userId = 1;
 var ipAddr = null;
 function connect() {
 	var host = window.location.host; // 带有端口号
 	userId =  GetQueryString("userId");
+	console.log(ipAddr);
 	var socket = new SockJS("http://" + ipAddr + "/websocket");
 	stompClient = Stomp.over(socket);
 	stompClient.connect({}, function (frame) {
@@ -22,7 +23,7 @@ function connect() {
 		// 	writeToScreen("sendToAll:" + response.body);
 		// });
 		console.log("end");
-		stompClient.subscribe("/exchange/sendToUser/user" + userId, function (response) {
+		stompClient.subscribe("/exchange/sendToUser/" + 1, function (response) {
 			writeToScreen(response.body);
 		});
 		}, function (error) {

@@ -32,13 +32,13 @@ public class MailUtils {
     public Boolean sendMailCode(String code,String receiver) throws MessagingException {
         SimpleMailMessage message = new SimpleMailMessage();
         //发件人邮件地址(上面获取到的，也可以直接填写,string类型)
-        message.setFrom("clh25349@aliyun.com");
+        message.setFrom("clzeroface@163.com");
         //要发送的qq邮箱(收件人地址)
         message.setTo(receiver);//address
         //邮件主题
-        message.setSubject("Lost&Found返回登录验证码");
+        message.setSubject("Lost&Found实名认证");
         //邮件正文
-        message.setText(new Date()+"\n" +"您好！欢迎登录Lost&Found,本次登录验证码是" + code + "，本验证码在5分钟内有效，为了您的账号安全，请勿泄露此验证码！！！");//！！！
+        message.setText(new Date()+"\n" +"您好！欢迎使用Lost&Found,您的验证码是" + code + "，本验证码在5分钟内有效，为了您的账号安全，请勿泄露此验证码！！！");//！！！
         javaMailSender.send(message);
         return true;
     }

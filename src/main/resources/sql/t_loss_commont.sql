@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 腾讯云
+ Source Server         : aliyun
  Source Server Type    : MySQL
- Source Server Version : 50734
- Source Host           : 82.157.191.65:3600
+ Source Server Version : 50741
+ Source Host           : 39.107.238.203:3600
  Source Schema         : lost_found
 
  Target Server Type    : MySQL
- Target Server Version : 50734
+ Target Server Version : 50741
  File Encoding         : 65001
 
- Date: 27/08/2021 20:28:51
+ Date: 24/02/2023 00:12:06
 */
 
 SET NAMES utf8mb4;
@@ -21,23 +21,25 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for t_loss_commont
 -- ----------------------------
 DROP TABLE IF EXISTS `t_loss_commont`;
-CREATE TABLE `t_loss_commont`  (
+CREATE TABLE `t_loss_commont` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `commont` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `time` bigint(255) NULL DEFAULT NULL,
-  `type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `is_delete` bit(1) NULL DEFAULT b'0',
-  `father_id` int(11) NULL DEFAULT NULL,
-  `user_id` int(11) NULL DEFAULT NULL,
-  `lost_thing_id` int(11) NULL DEFAULT NULL,
+  `commont` varchar(512) DEFAULT NULL,
+  `time` bigint(255) DEFAULT NULL,
+  `type` char(1) DEFAULT NULL,
+  `is_delete` bit(1) DEFAULT b'0',
+  `father_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `lost_thing_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `father_id`(`father_id`) USING BTREE,
-  INDEX `user_id`(`user_id`) USING BTREE,
-  INDEX `lost_thing_id`(`lost_thing_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 72 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+  KEY `father_id` (`father_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
+  KEY `lost_thing_id` (`lost_thing_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of t_loss_commont
 -- ----------------------------
+BEGIN;
+COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

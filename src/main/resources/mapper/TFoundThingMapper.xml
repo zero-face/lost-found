@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.lostfound.dao.TFoundThingMapper">
+    <select id="getFoundBySearchAndTime" resultType="com.example.lostfound.entity.TFoundThing">
+        select * from t_found_thing
+        <where>
+            <if test="time != null">
+                loss_time >= date_sub(current_date(), interval #{time} day)
+            </if>
 
+            <if test="type != 0">
+                AND type = #{type}
+            </if>
+            AND status = 0
+            AND (description like CONCAT('%', #{search} ,'%')
+            OR  name like CONCAT('%', #{search} ,'%'))
+        </where>
+    </select>
 </mapper>

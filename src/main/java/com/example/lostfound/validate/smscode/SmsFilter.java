@@ -34,7 +34,7 @@ public class SmsFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        if (StringUtils.contains(httpServletRequest.getRequestURI(), "mail")
+        if (StringUtils.contains(httpServletRequest.getRequestURI(), "auth")
                 && StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "post")) {
             try {
                 validateCode(new ServletWebRequest(httpServletRequest));
@@ -52,17 +52,17 @@ public class SmsFilter extends OncePerRequestFilter {
 
         SmsCode mailCodeInRedis = (SmsCode) redisTemplate.opsForValue().get(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
         if (StringUtils.isBlank(mailCodeInRequest)) {
-            throw new ValidateCodeException("验证码不能为空！");
+            throw new ValidateCodeException("验证码不能为空");
         }
         if (null == mailCodeInRedis) {
-            throw new ValidateCodeException("验证码不存在！");
+            throw new ValidateCodeException("验证码不存在");
         }
         if (mailCodeInRedis.checkExpire()) {
             redisTemplate.delete(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
-            throw new ValidateCodeException("验证码已过期！");
+            throw new ValidateCodeException("验证码已过期");
         }
         if (!StringUtils.equalsIgnoreCase(mailCodeInRedis.getCode(), mailCodeInRequest)) {
-            throw new ValidateCodeException("验证码不正确！");
+            throw new ValidateCodeException("验证码不正确");
         }
         redisTemplate.delete(RedisCode.MAIL_CODE.getMsg() + mailInRequest);
     }

@@ -8,22 +8,18 @@ import lombok.Data;
  * @since: jdk 1.8
  */
 @Data
-public class CommonReturnType {
-
+public class CommonReturnType<T> {
     private String status;
-
-    private Object data;
-
+    private T data;
     private String message;
     /**
      * 成功的返回结果
      * @param result
      * @return
      */
-    public static CommonReturnType success(Object result,String message) {
-        return CommonReturnType.create(result,"success",message);
+    public static <T> CommonReturnType<T> success(T result,String message) {
+        return CommonReturnType.create(result,"success", message);
     }
-
     /**
      * 没有描述的成功返回结果
      * @param result
@@ -40,7 +36,6 @@ public class CommonReturnType {
     public static CommonReturnType fail(Object result,String message) {
         return CommonReturnType.create(result,"fail", message);
     }
-
     /**
      * 没有描述信息的失败返回结果
      * @param result
@@ -58,7 +53,6 @@ public class CommonReturnType {
     public static CommonReturnType create(Object result,String message) {
         return CommonReturnType.create(result,"success", message);
     }
-
     /**
      * 没有描述信息返回
      * @param result
@@ -74,8 +68,8 @@ public class CommonReturnType {
      * @param status
      * @return
      */
-    public static CommonReturnType create(Object result, String status,String message) {
-        CommonReturnType type = new CommonReturnType();
+    public static <T> CommonReturnType<T> create(T result, String status,String message) {
+        CommonReturnType<T> type = new CommonReturnType();
         type.setStatus(status);
         type.setData(result);
         type.setMessage(message);

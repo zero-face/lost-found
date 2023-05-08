@@ -40,11 +40,11 @@ public class TFoundThing implements Serializable {
 
     private String address;
 
-    private Date loseTime;
+    private Long loseTime;
 
     private String description;
 
-    private Integer status;
+    private Boolean status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)

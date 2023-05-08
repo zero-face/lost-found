@@ -1,5 +1,6 @@
 package com.example.lostfound.service;
 
+import com.example.lostfound.entity.TMessage;
 import com.example.lostfound.entity.vo.LossCommentVO;
 import com.example.lostfound.entity.TLossComment;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -25,4 +26,5 @@ public interface TLossCommontService extends IService<TLossComment> {
     Long addCommentLikeNums(Integer lossId,Integer mesId);
     List<LossCommentVO> convertToCommentVO(List<TLossComment> lossCommonts);
 
+    void commentNotify(TMessage mesVO);
 }

@@ -10,7 +10,6 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

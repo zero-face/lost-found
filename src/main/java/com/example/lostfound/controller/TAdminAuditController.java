@@ -3,25 +3,30 @@ package com.example.lostfound.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lostfound.core.response.CommonReturnType;
-import com.example.lostfound.entity.TAdminAudit;
-import com.example.lostfound.entity.TFoundLoss;
-import com.example.lostfound.entity.TLossThing;
-import com.example.lostfound.entity.TUser;
+import com.example.lostfound.entity.*;
+import com.example.lostfound.entity.vo.AuditVO;
+import com.example.lostfound.entity.wxTemplate.PubNotify;
+import com.example.lostfound.entity.wxTemplate.WxEntity;
 import com.example.lostfound.service.*;
+import com.example.lostfound.utils.MesUtil;
 import com.example.lostfound.utils.NotifyUtil;
 import com.example.lostfound.entity.vo.MesVO;
-import com.example.lostfound.entity.TMessage;
+import com.example.lostfound.utils.WxUtil;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @Author Zero
@@ -38,11 +43,11 @@ public class TAdminAuditController extends BaseController{
     @Autowired
     private TAdminAuditService adminAuditService;
     @Autowired
-    private NotifyUtil notifyUtil;
-    @Autowired
     private TLossThingService lossThingService;
     @Autowired
     private TFoundLossService foundLossService;
+    @Autowired
+    private TFoundThingService foundThingService;
     @Autowired
     private MessageService messageService;
     @Autowired
@@ -56,49 +61,88 @@ public class TAdminAuditController extends BaseController{
      * @return
      */
     @GetMapping("/audit")
-    public CommonReturnType audit(@RequestParam("type")String type, //审核结果是否同意
-                                  @RequestParam("auditId")Integer mesId, //认领信息的id
+    public CommonReturnType audit(@RequestParam("type")Integer type,
+                                  @RequestParam("id")Integer id, //审核信息ID
                                   @RequestParam("des")String des, //描述
-                                  @RequestParam("adminId")Integer adminId, //管理员id
-                                  @RequestParam("applyId")Integer applyId) { //认领人id
-        final TLossThing id = lossThingService.getById(mesId);
-        final TMessage messageVO = new TMessage() {{
-            setStatus(true);
-            setId(UUID.randomUUID().toString());
-            setFlag(false);
-            setFroms(adminId);
-            setToo(applyId);
-            setType("0");
-            setMessage(des);
+                                  @RequestParam("adminId")Integer adminId) {
+        TAdminAudit audit = new TAdminAudit() {{
+            setStatus(String.valueOf(type));
+            setDes(des);
+            setAdminId(adminId);
         }};
-        messageService.save(messageVO);
-        //更改状态
-        final TAdminAudit one = adminAuditService.getOne(new QueryWrapper<TAdminAudit>().eq("loss_id", mesId));
-        one.setGmtModified(new Date());
-        one.setStatus(true);
-        one.setAdminId(adminId); //设置管理员
-        adminAuditService.updateById(one);
-        final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, applyId);
-        final MesVO mesVO = new MesVO();
-        mesVO.setName(id.getName());
-        BeanUtils.copyProperties(userInfoByNameOrId, mesVO);
-        BeanUtils.copyProperties(messageVO, mesVO);
-        if(type .equals("1") ) { //同意
-            id.setStatus(true);
-            lossThingService.updateById(id);
-            final TFoundLoss tFoundLoss = new TFoundLoss() {{
-                setAuditId(mesId); //审核信息id
-                setLossId(id.getId()); //失物id
-                setUserId(applyId); //领取人id
-            }};
-            //放入找回表
-            foundLossService.save(tFoundLoss);
+        adminAuditService.update(audit, new QueryWrapper<TAdminAudit>().eq("id", id));
+        audit = adminAuditService.getById(id);
+
+        String con ="";
+        if(type == 1) {
+            con = "失物信息发布审核通过";
+        } else {
+            con = "审核驳回，原因：" + des;
         }
-        //回传原因
-        notifyUtil.publish(JSON.toJSONString(mesVO),applyId.toString(),mesId.toString());
-        return CommonReturnType.success("操作成功");
+
+        final String sessionId = MesUtil.generateSessionId(String.valueOf(audit.getUserId()), String.valueOf(adminId));
+        TMessage messageVO = new TMessage();
+        messageVO.setMsgState("0");
+        messageVO.setFroms(adminId);
+        messageVO.setToo(audit.getUserId());
+        if(type == 1) {
+            messageVO.setLossId(audit.getLossId());
+        }
+        messageVO.setType("0");
+        messageVO.setTextType("0");
+        messageVO.setSendText(con);
+        messageVO.setChatSessionId(sessionId);
+
+        messageService.save(messageVO);
+        adminAuditService.checkNotify(audit.getLossId(),messageVO, type);
+
+        if(type == 1) {
+            final TLossThing lossThing = new TLossThing() {{
+                setStatus(false);
+            }};
+            lossThingService.update(lossThing, new QueryWrapper<TLossThing>().eq("id", audit.getLossId()));
+        }
+        final CommonReturnType checkList = getCheckList();
+        return checkList;
+
     }
 
-
+    @GetMapping
+    public CommonReturnType getCheckList() {
+        final List<TAdminAudit> list = adminAuditService.list(new QueryWrapper<TAdminAudit>().orderByAsc("admin_id").orderByDesc("gmt_create"));
+        final List<AuditVO> collect = list.stream().map(auditVOitem -> {
+            AuditVO auditVO = new AuditVO();
+            BeanUtils.copyProperties(auditVOitem,auditVO);
+            final TUser userInfoByNameOrId = userService.getUserInfoByNameOrId(null, auditVOitem.getUserId());
+            TLossThing lossThing = null;
+            TFoundThing foundThing = null;
+            if(auditVOitem.getLossId() != null) {
+                lossThing = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("id", auditVOitem.getLossId()));
+            }
+           if(auditVOitem.getFoundId() != null) {
+               foundThing = foundThingService.getOne(new QueryWrapper<TFoundThing>().eq("id", auditVOitem.getFoundId()));
+           }
+            auditVO.setNickName(userInfoByNameOrId.getNickName());
+            auditVO.setUserId(auditVO.getUserId());
+            auditVO.setAddressUrl(userInfoByNameOrId.getAddressUrl());
+            auditVO.setApplyId(auditVOitem.getLossId());
+            if(auditVOitem.getLossId() != null) {
+                auditVO.setLossName(lossThing.getName());
+                auditVO.setPicUrl(lossThing.getPictureUrl());
+            }
+            if(auditVOitem.getFoundId() != null) {
+                auditVO.setLossName(foundThing.getName());
+                auditVO.setPicUrl(foundThing.getPictureUrl());
+            }
+            auditVO.setGmtCreate(auditVOitem.getGmtCreate());
+            auditVO.setGmtModified(auditVOitem.getGmtModified());
+            auditVO.setStatus(auditVOitem.getStatus());
+            return auditVO;
+        }).collect(Collectors.toList());
+        if(collect == null || collect.size() < 1) {
+            return CommonReturnType.fail("暂无审核信息");
+        }
+        return CommonReturnType.success(collect);
+    }
 
 }

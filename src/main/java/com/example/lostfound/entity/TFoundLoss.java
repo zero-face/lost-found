@@ -41,9 +41,6 @@ public class TFoundLoss {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
 
-
     private Integer lossId;
 
-    //审核信息id
-    private Integer auditId;
 }
