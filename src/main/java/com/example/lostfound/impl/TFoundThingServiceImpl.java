@@ -22,6 +22,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -53,6 +54,8 @@ public class TFoundThingServiceImpl extends ServiceImpl<TFoundThingMapper, TFoun
     private WxUtil wxUtil;
     @Autowired
     private MessageService messageService;
+
+    private static final String pubTemplateId = "8S3jsiyoDbdXfiXCJ6bd66Xk1j8dzWZ_dNKGPk_N2dI";
 
     @Override
     public List<TFoundThingVO> converToLossVO(List<TFoundThing> list) {
@@ -89,10 +92,10 @@ public class TFoundThingServiceImpl extends ServiceImpl<TFoundThingMapper, TFoun
                 final PubNotify pubNotify = new PubNotify() {{
                     setThing2(new WxEntity(foundThing.getDescription()));
                     setThing1(new WxEntity(foundThing.getName()));
-                    setTime3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(foundThing.getGmtCreate())));
+                    setTime3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
                     setPhrase4(new WxEntity("待审核"));
                 }};
-                final Map<String, Object> notifyBody = wxUtil.builderPub(openId, pubNotify);
+                final Map<String, Object> notifyBody = wxUtil.buildWxMes(openId, pubNotify, pubTemplateId);
                 wxUtil.postSubMes(accessToken, notifyBody);
                 messageService.save(pubLossMes);
             }catch (Exception e) {

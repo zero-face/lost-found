@@ -137,7 +137,7 @@ public class MessageController {
     public CommonReturnType systemMessage(@RequestParam("type") Integer type,
                                           @RequestParam("userId") Integer userId) {
         final List<TMessage> systemMes = messageService.list(new QueryWrapper<TMessage>().eq("type", type).eq("too", userId).orderBy(true, false, "gmt_create"));
-        messageService.readAllMsg(null,String.valueOf(userId), type);
+        messageService.readAllMsg(null, String.valueOf(userId), type);
         final List<NoticesVO> noticesVOS = messageService.convertToNoticesVO(systemMes, type);
         if (noticesVOS == null || noticesVOS.size() < 1) {
             return CommonReturnType.fail(null, "没有" + (type == 0 ? "系统消息" : "互动消息"));

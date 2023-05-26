@@ -39,6 +39,7 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor {
     @Autowired
     private RedisTemplate redisTemplate;
 
+
     /**
      * 通过redis的字符串结构实现
      * 首先，我们获取请求中的参数，参数分两种：一种是body，也就是post请求，一种是get请求也就是url（parameter）；然后将当前时间戳和参数放入map中

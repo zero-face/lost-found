@@ -44,6 +44,8 @@ public class TFoundThing implements Serializable {
 
     private String description;
 
+    private String area;
+
     private Boolean status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

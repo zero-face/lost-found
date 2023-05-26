@@ -55,6 +55,8 @@ public class TUser implements Serializable {
 
     private String mail;
 
+    private String school;
+
     @ApiModelProperty(value = "学院")
     private String collage;
 
@@ -93,6 +95,8 @@ public class TUser implements Serializable {
     
     @ApiModelProperty(value = "是否实名")
     private Boolean isTrue;
+
+    private Boolean admin;
     
     
 }

@@ -79,18 +79,18 @@ public class RateLimiterAspect {
         final StringBuffer stringBuffer = new StringBuffer(rateLimiter.key());
         //根据IP限流
         if (rateLimiter.limitType() == LimitType.IP) {
-            //key后面跟上ip
+            // key后面跟上ip
             stringBuffer.append(IPUtil.getIpAddr(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest())).append("-");
         }
         if(rateLimiter.limitType() == LimitType.USER) {
-            //跟上用户名
+            // 跟上用户名
             UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             stringBuffer.append(userDetails.getUsername()).append("-");
         }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final Method method = signature.getMethod();
         final Class<?> declaringClass = method.getDeclaringClass();
-        //后面跟上类名，方法名
+        // 后面跟上类名，方法名
         stringBuffer.append(declaringClass.getName()).append("-").append(method.getName());
         return stringBuffer.toString();
     }

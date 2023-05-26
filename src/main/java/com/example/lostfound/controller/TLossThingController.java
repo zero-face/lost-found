@@ -47,8 +47,10 @@ import java.util.List;
 public class TLossThingController extends BaseController{
     @Autowired
     private TLossThingService lossThingService;
+
     @Autowired
     private RedisTemplate redisTemplate;
+
     @Autowired
     private TAdminAuditService adminAuditService;
     @Autowired
@@ -88,11 +90,12 @@ public class TLossThingController extends BaseController{
      */
     @GetMapping("/{pn}")
 //    @CachePut(value = "redisCache",key = "'RedisLose'+ #pn")
-    public CommonReturnType getAllLost(@PathVariable("pn")Integer pn) {
+    public CommonReturnType getAllLost(@PathVariable("pn")Integer pn,
+                                       @RequestParam(value = "school")String school) {
         //查询第pn，每页5条，不查询数据总数
         final Page<TLossThing> page = new Page<>(pn, 5,false);
         final Page<TLossThing> lossThingPage = lossThingService.page(page,new QueryWrapper<TLossThing>()
-                .eq("status", 0).orderByDesc("gmt_create"));
+                .eq("area", school).eq("status", 0).orderByDesc("gmt_create"));
         final List<TLossThing> records = lossThingPage.getRecords();
         if(records != null) {
             if(records.size() == 0) {
@@ -207,13 +210,15 @@ public class TLossThingController extends BaseController{
                                         @RequestParam(value = "type")Integer type,
                                         @RequestParam(value = "lossTime",required = false) Date time,
                                         @RequestParam(value = "userId")Integer userId,
-                                        @RequestParam(value = "des")String description
+                                        @RequestParam(value = "des")String description,
+                                        @RequestParam(value = "area")String area
                                         ) {
         final TLossThing tLossThing = new TLossThing() {{
             setName(name);
             setAddress(address);
             setDescription(description);
             setLossUserId(userId);
+            setArea(area);
 //            setGmtCreate(time);
             setType(type);
             setPictureUrl(picture);
@@ -222,19 +227,6 @@ public class TLossThingController extends BaseController{
         }};
         final boolean save = lossThingService.save(tLossThing);
         if(save) {
-            // 通知管理员审核
-            final TMessage pubLossMes = new TMessage();
-            pubLossMes.setFroms(userId);
-//            pubLossMes.setLossId(lossId);
-            pubLossMes.setToo(1);
-            pubLossMes.setMsgState("1"); // 默认已读
-            pubLossMes.setTextType("0"); // 文字评论
-            pubLossMes.setType("4"); // 发布通知
-
-            final String sessionId = MesUtil.generateSessionId(String.valueOf(userId), "1");
-            pubLossMes.setChatSessionId(sessionId);
-            lossThingService.pubNotify(pubLossMes, tLossThing);
-
             // 插入管理员表
             final TAdminAudit admin = new TAdminAudit(){{
                 setLossId(tLossThing.getId());
@@ -242,6 +234,21 @@ public class TLossThingController extends BaseController{
                 setStatus("0");
             }};
             adminAuditService.save(admin);
+
+            final List<TUser> adminUser = userService.list(new QueryWrapper<TUser>().eq("admin", "1"));
+            for(int i = 0; i < adminUser.size(); i++) {
+                // 通知管理员审核
+                final TMessage pubLossMes = new TMessage();
+                pubLossMes.setFroms(userId);
+                pubLossMes.setToo(adminUser.get(i).getId());
+                pubLossMes.setMsgState("1"); // 默认已读
+                pubLossMes.setTextType("0"); // 文字评论
+                pubLossMes.setType("4"); // 发布通知
+
+                final String sessionId = MesUtil.generateSessionId(String.valueOf(userId), "1");
+                pubLossMes.setChatSessionId(sessionId);
+                lossThingService.pubNotify(pubLossMes, tLossThing);
+            }
             return CommonReturnType.success(null,"发布成功");
         }
         return CommonReturnType.fail(null,"发布失败");

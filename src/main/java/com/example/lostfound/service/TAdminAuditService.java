@@ -11,5 +11,5 @@ import com.example.lostfound.entity.TMessage;
  * @Description
  **/
 public interface TAdminAuditService extends IService<TAdminAudit> {
-    void checkNotify(Integer lossId, TMessage messageVO, Integer type);
+    void checkNotify(Integer lossId, TMessage messageVO, Integer type, Boolean flag);
 }

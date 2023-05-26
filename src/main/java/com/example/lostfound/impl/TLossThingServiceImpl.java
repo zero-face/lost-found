@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -54,6 +55,8 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
     private WxUtil wxUtil;
     @Autowired
     private MessageService messageService;
+
+    private static final String pubTemplateId = "8S3jsiyoDbdXfiXCJ6bd66Xk1j8dzWZ_dNKGPk_N2dI";
 
     @Override
     @CachePut(value = "redisCache",key = "'RedisLose' + #search")
@@ -138,12 +141,12 @@ public class TLossThingServiceImpl extends ServiceImpl<TLossThingMapper, TLossTh
                 final String openId = user.getOpenId();
                 final String accessToken = wxUtil.getAccessToken();
                 final PubNotify pubNotify = new PubNotify() {{
-                    setThing2(new WxEntity(lossThing.getDescription()));
                     setThing1(new WxEntity(lossThing.getName()));
-                    setTime3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lossThing.getGmtCreate())));
+                    setThing2(new WxEntity(lossThing.getDescription()));
+                    setTime3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
                     setPhrase4(new WxEntity("待审核"));
                 }};
-                final Map<String, Object> notifyBody = wxUtil.builderPub(openId, pubNotify);
+                final Map<String, Object> notifyBody = wxUtil.buildWxMes(openId, pubNotify, pubTemplateId);
                 wxUtil.postSubMes(accessToken, notifyBody);
                 messageService.save(pubLossMes);
             }catch (Exception e) {

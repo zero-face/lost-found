@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -56,6 +58,7 @@ public class WebsocketController {
 
     @Autowired
     private WxUtil wxUtil;
+    private static final String chatTemplateId = "c8ji8CcuH4fCxaVYZnpSl8KR6uPLFyNKZvbnCrKamP8";
 
 
     @MessageMapping("/sendToUser")
@@ -70,16 +73,16 @@ public class WebsocketController {
         if(!sessionHandler.isOnline(toUserId)) {
             log.warn(toUserId + "不在线，开始通知");
             tMessage.setMsgState("0");
-            final TUser user = userService.getOne(new QueryWrapper<TUser>().eq("id", toUserId));
-            final String openId = user.getOpenId();
+            final TUser toUser = userService.getOne(new QueryWrapper<TUser>().eq("id", toUserId));
+            final TUser fromUser = userService.getOne(new QueryWrapper<TUser>().eq("id", fromUserId));
+            final String openId = toUser.getOpenId();
             final String accessToken = wxUtil.getAccessToken();
             final PubNotify pubNotify = new PubNotify() {{
-                setThing2(new WxEntity("捡到在而餐厅1"));
-                setThing1(new WxEntity("一个钱包"));
-                setTime3(new WxEntity("2023年3月20日"));
-                setPhrase4(new WxEntity("审核通过"));
+                setThing2(new WxEntity(tMessage.getSendText()));
+                setDate3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+                setThing4(new WxEntity(fromUser.getNickName()));
             }};
-            final Map<String, Object> notifyBody = wxUtil.builderPub(openId, pubNotify);
+            final Map<String, Object> notifyBody = wxUtil.buildWxMes(openId, pubNotify, chatTemplateId);
             wxUtil.postSubMes(accessToken, notifyBody);
         }
         log.info("开始持久化");

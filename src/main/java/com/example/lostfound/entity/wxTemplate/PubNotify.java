@@ -18,7 +18,17 @@ public class PubNotify {
 
     private WxEntity thing2;
 
+    private WxEntity thing4;
+
+    private WxEntity thing5;
+
+    private WxEntity date3;
+
+    private WxEntity date4;
+
     private WxEntity time3;
+
+    private WxEntity phrase3;
 
     private WxEntity phrase4;
 }

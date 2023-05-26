@@ -28,6 +28,8 @@ public class TFoundThingVO {
 
     private String userAddress;
 
+    private String area;
+
     private String pictureUrl;
 
     private String address;

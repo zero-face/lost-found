@@ -75,7 +75,15 @@ public class TAdminAuditController extends BaseController{
 
         String con ="";
         if(type == 1) {
-            con = "失物信息发布审核通过";
+            if(audit.getFoundId() != null) {
+                final TFoundThing foundThing = foundThingService.getById(audit.getFoundId());
+                con =  "#" + foundThing.getName() + "# 审核通过";
+            }
+            if (audit.getLossId() != null) {
+                final TLossThing lossThing = lossThingService.getById(audit.getLossId());
+                con = "#" + lossThing.getName() +  "# 审核通过";
+            }
+
         } else {
             con = "审核驳回，原因：" + des;
         }
@@ -94,13 +102,30 @@ public class TAdminAuditController extends BaseController{
         messageVO.setChatSessionId(sessionId);
 
         messageService.save(messageVO);
-        adminAuditService.checkNotify(audit.getLossId(),messageVO, type);
+        boolean flag = false;
+        Integer lossId = null;
+        if(audit.getLossId() != null) {
+            flag = true;
+            lossId = audit.getLossId();
+        } else {
+            lossId = audit.getFoundId();
+        }
+        adminAuditService.checkNotify(lossId,messageVO, type, flag);
 
         if(type == 1) {
-            final TLossThing lossThing = new TLossThing() {{
-                setStatus(false);
-            }};
-            lossThingService.update(lossThing, new QueryWrapper<TLossThing>().eq("id", audit.getLossId()));
+            if(audit.getLossId() != null) {
+                final TLossThing lossThing = new TLossThing() {{
+                    setStatus(false);
+                }};
+                lossThingService.update(lossThing, new QueryWrapper<TLossThing>().eq("id", audit.getLossId()));
+            }
+            if(audit.getFoundId() != null) {
+                final TFoundThing foundThing = new TFoundThing() {{
+                    setStatus(false);
+                }};
+                foundThingService.update(foundThing, new QueryWrapper<TFoundThing>().eq("id", audit.getFoundId()));
+            }
+
         }
         final CommonReturnType checkList = getCheckList();
         return checkList;

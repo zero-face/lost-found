@@ -5,15 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.lostfound.core.error.BusinessException;
 import com.example.lostfound.core.response.CommonReturnType;
-import com.example.lostfound.entity.TAdminAudit;
-import com.example.lostfound.entity.TFoundThing;
-import com.example.lostfound.entity.TLossThing;
-import com.example.lostfound.entity.TMessage;
+import com.example.lostfound.entity.*;
 import com.example.lostfound.entity.vo.LossThingVO;
 import com.example.lostfound.entity.vo.TFoundThingVO;
 import com.example.lostfound.service.TAdminAuditService;
 import com.example.lostfound.service.TFoundThingService;
 import com.example.lostfound.service.TLossThingService;
+import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.MesUtil;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +45,9 @@ public class TFoundThingController extends BaseController{
     private TLossThingService lossThingService;
 
     @Autowired
+    private TUserService userService;
+
+    @Autowired
     private TAdminAuditService adminAuditService;
 
 
@@ -69,7 +70,8 @@ public class TFoundThingController extends BaseController{
                                          @RequestParam("lossTime")@NotNull long lossTime,
                                          @RequestParam("des")@NotBlank String des,
                                          @RequestParam("type")@NotBlank String type,
-                                         @RequestParam("userId") Integer userId) throws BusinessException {
+                                         @RequestParam("userId") Integer userId,
+                                         @RequestParam("area")String area) throws BusinessException {
         TFoundThing foundThing = new TFoundThing() {{
             setName(name);// 名称
             setAddress(address); //地址
@@ -78,24 +80,12 @@ public class TFoundThingController extends BaseController{
             setPictureUrl(pic); //图片
             setPublishUserId(userId); //发布人
             setType(type); //发布类型
+            setArea(area);
             setStatus(true);
         }};
         //放入寻物表
         final boolean save = foundThingService.save(foundThing);
         if(save) {
-            // 通知管理员审核
-            final TMessage pubLossMes = new TMessage();
-            pubLossMes.setFroms(userId);
-//            pubLossMes.setLossId(lossId);
-            pubLossMes.setToo(1);
-            pubLossMes.setMsgState("1"); // 默认已读
-            pubLossMes.setTextType("0"); // 文字评论
-            pubLossMes.setType("4"); // 发布通知
-
-            final String sessionId = MesUtil.generateSessionId(String.valueOf(userId), "1");
-            pubLossMes.setChatSessionId(sessionId);
-            foundThingService.pubNotify(pubLossMes, foundThing);
-
             // 插入管理员表
             final TAdminAudit admin = new TAdminAudit(){{
                 setFoundId(foundThing.getId());
@@ -103,6 +93,22 @@ public class TFoundThingController extends BaseController{
                 setStatus("0");
             }};
             adminAuditService.save(admin);
+
+            final List<TUser> adminUser = userService.list(new QueryWrapper<TUser>().eq("admin", "1"));
+            for(int i = 0; i < adminUser.size(); i++) {
+                // 通知管理员审核
+                final TMessage pubLossMes = new TMessage();
+                pubLossMes.setFroms(userId);
+//            pubLossMes.setLossId(lossId);
+                pubLossMes.setToo(adminUser.get(i).getId());
+                pubLossMes.setMsgState("1"); // 默认已读
+                pubLossMes.setTextType("0"); // 文字评论
+                pubLossMes.setType("4"); // 发布通知
+
+                final String sessionId = MesUtil.generateSessionId(String.valueOf(userId), "1");
+                pubLossMes.setChatSessionId(sessionId);
+                foundThingService.pubNotify(pubLossMes, foundThing);
+            }
         }
         return CommonReturnType.success(null,"发布成功");
     }

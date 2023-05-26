@@ -47,6 +47,7 @@ public class UserVO {
     @ApiModelProperty(value = "QQ")
     private String qq;
 
+    private String school;
     @ApiModelProperty(value = "学院")
     private String collage;
 
@@ -65,5 +66,7 @@ public class UserVO {
     private Date gmtModified;
 
     private Boolean isTrue;
+
+    private Boolean admin;
 
 }

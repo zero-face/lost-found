@@ -34,6 +34,8 @@ public class LossThingVO {
 
     private Integer lossUserId;
 
+    private String area;
+
     private String lossNickName;
 
     private String type;

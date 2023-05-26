@@ -13,6 +13,7 @@
             </if>
             AND status = 0
             AND (description like CONCAT('%', #{search} ,'%')
+            OR address like CONCAT('%', #{search} ,'%')
             OR  name like CONCAT('%', #{search} ,'%'))
         </where>
     </select>

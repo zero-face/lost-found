@@ -20,6 +20,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -52,6 +54,7 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
     @Autowired
     private WxUtil wxUtil;
 
+    private static final String chatTemplateId = "c8ji8CcuH4fCxaVYZnpSl8KR6uPLFyNKZvbnCrKamP8";
     /**
      * 评论自增一
      * @param lossId
@@ -164,15 +167,15 @@ public class TLossCommontServiceImpl extends ServiceImpl<TLossCommontMapper, TLo
                 template.convertAndSend("/exchange/sendToUser/" + mesVO.getToo(), JSON.toJSONString(mesVO));
                 // 微信通知
                 final TUser user = userService.getOne(new QueryWrapper<TUser>().eq("id", mesVO.getToo()));
+                final TUser fromUser = userService.getOne(new QueryWrapper<TUser>().eq("id", mesVO.getFroms()));
                 final String openId = user.getOpenId();
                 final String accessToken = wxUtil.getAccessToken();
                 final PubNotify pubNotify = new PubNotify() {{
-                    setThing2(new WxEntity("捡到在而餐厅1"));
-                    setThing1(new WxEntity("一个钱包"));
-                    setTime3(new WxEntity("2023年3月20日"));
-                    setPhrase4(new WxEntity("审核通过"));
+                    setThing2(new WxEntity(mesVO.getSendText()));
+                    setDate3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+                    setThing4(new WxEntity(fromUser.getNickName()));
                 }};
-                final Map<String, Object> notifyBody = wxUtil.builderPub(openId, pubNotify);
+                final Map<String, Object> notifyBody = wxUtil.buildWxMes(openId, pubNotify, chatTemplateId);
                 wxUtil.postSubMes(accessToken, notifyBody);
                 final int insert = messageMapper.insert(mesVO);
             }catch (Exception e) {

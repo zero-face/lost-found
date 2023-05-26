@@ -44,8 +44,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -83,16 +85,7 @@ public class TUserController extends BaseController{
 
     @GetMapping("/test")
     public String test() {
-        final String accessToken = wxUtil.getAccessToken();
-        System.out.println(accessToken);
-        final PubNotify pubNotify = new PubNotify() {{
-            setThing2(new WxEntity("捡到在而餐厅"));
-            setThing1(new WxEntity("一个钱包"));
-            setTime3(new WxEntity("2023年3月20日"));
-            setPhrase4(new WxEntity("审核通过"));
-        }};
-        final Map<String, Object> notifyBody = wxUtil.builderPub("o7ji04mTTVLYFGRSKXGNmaLjodn4", pubNotify);
-        wxUtil.postSubMes(accessToken, notifyBody);
+
         return null;
     }
     @ApiOperation("邮箱登录获取验证码")
@@ -226,7 +219,7 @@ public class TUserController extends BaseController{
         final boolean update = userService.update(id1,new UpdateWrapper<TUser>().eq("id", id));
         if(update) {
             log.info("修改成功");
-            return CommonReturnType.success(null,"修改成功");
+            return getUserInfo(null, id);
         } else {
             log.info("修改失败");
             return CommonReturnType.fail(null,"修改失败");
@@ -333,11 +326,17 @@ public class TUserController extends BaseController{
             BeanUtils.copyProperties(one, tUser);
             tUser.setOpenId(openid);
             System.out.println("userinfo"+tUser);
-            userService.update(tUser,new UpdateWrapper<TUser>().eq("open_id", openid));
+//            userService.update(tUser,new UpdateWrapper<TUser>().eq("open_id", openid));
         }
 
         final TUser id = userService.getOne(new QueryWrapper<TUser>().eq("open_id", openid));
         final Map<String, Object> maps = new HashMap<String, Object>();
+        if(id.getAdmin()) {
+            maps.put("admin", true);
+        } else {
+            maps.put("admin", false);
+        }
+
         final UserVO userVO = new UserVO();
         BeanUtils.copyProperties(id, userVO);
         Map<String, Object> reToken = JSON.parseObject(JSON.toJSONString(userVO), new TypeReference<Map<String,
@@ -346,6 +345,42 @@ public class TUserController extends BaseController{
         String token = jwtTokenUtil.generateToken(maps, id.getId().toString(), 24 * 60 * 60 * 1000);
         reToken.put("token",token);
         return CommonReturnType.success(reToken);
+    }
+
+    @GetMapping("/addAdmin")
+    public CommonReturnType addAdmin(@RequestParam("id")Integer id) {
+        final TUser user = userService.getById(id);
+        if (user == null) {
+            return CommonReturnType.fail(null, "用户不存在");
+        }
+        TUser tUser = new TUser(){{setAdmin(true);}};
+        userService.update(tUser, new UpdateWrapper<TUser>().eq("id", id));
+        return getAllAdmin();
+    }
+
+    @DeleteMapping("/deleteAdmin")
+    public CommonReturnType deleteAdmin(@RequestParam("id") Integer id) {
+        final TUser user = userService.getById(id);
+        if (user == null) {
+            return CommonReturnType.fail(null, "用户不存在");
+        }
+        final TUser tUser = new TUser();
+        tUser.setAdmin(false);
+        userService.update(tUser, new UpdateWrapper<TUser>().eq("id", id));
+        return getAllAdmin();
+    }
+    @GetMapping("/admin")
+    public CommonReturnType getAllAdmin() {
+        final List<TUser> list = userService.list(new QueryWrapper<TUser>().eq("admin", true));
+        final List<UserVO> collect = list.stream().map(e -> {
+            UserVO uerVO = new UserVO();
+            BeanUtils.copyProperties(e, uerVO);
+            return uerVO;
+        }).collect(Collectors.toList());
+        if (collect != null) {
+            return CommonReturnType.success(collect, "获取成功");
+        }
+        return CommonReturnType.fail(null, "获取失败");
     }
 
     /**

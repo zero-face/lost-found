@@ -4,13 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lostfound.dao.TAdminAuditMapper;
-import com.example.lostfound.entity.TAdminAudit;
-import com.example.lostfound.entity.TLossThing;
-import com.example.lostfound.entity.TMessage;
-import com.example.lostfound.entity.TUser;
+import com.example.lostfound.entity.*;
 import com.example.lostfound.entity.wxTemplate.PubNotify;
 import com.example.lostfound.entity.wxTemplate.WxEntity;
 import com.example.lostfound.service.TAdminAuditService;
+import com.example.lostfound.service.TFoundThingService;
 import com.example.lostfound.service.TLossThingService;
 import com.example.lostfound.service.TUserService;
 import com.example.lostfound.utils.WxUtil;
@@ -36,6 +34,8 @@ public class TAdminAuditServiceImpl extends ServiceImpl<TAdminAuditMapper, TAdmi
 
     @Autowired
     private TLossThingService lossThingService;
+    @Autowired
+    private TFoundThingService foundThingService;
 
     @Autowired
     private TUserService userService;
@@ -44,12 +44,21 @@ public class TAdminAuditServiceImpl extends ServiceImpl<TAdminAuditMapper, TAdmi
     @Autowired
     private WxUtil wxUtil;
 
+    private static final String checkResTemplateId = "7q5Qurvb1mHHTURQ6GwwVwYSvKfB7iDwLZdZ92c8R6I";
+
     @Override
-    public void checkNotify(Integer lossId, TMessage messageVO, Integer type) {
+    public void checkNotify(Integer lossId, TMessage messageVO, Integer type, Boolean flag) {
         CompletableFuture.supplyAsync(() -> {
             try {
+                TLossThing one = null;
+                TFoundThing one1 = null;
                 template.convertAndSend("/exchange/sendToUser/" + messageVO.getToo(), JSON.toJSONString(messageVO));
-                final TLossThing one = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("id", lossId));
+                if(flag) {
+                    one = lossThingService.getOne(new QueryWrapper<TLossThing>().eq("id", lossId));
+                } else{
+                    one1 = foundThingService.getOne(new QueryWrapper<TFoundThing>().eq("id", lossId));
+                }
+
                 // 微信通知
                 final TUser user = userService.getUserInfoByNameOrId(null, messageVO.getToo());
                 final String openId = user.getOpenId();
@@ -59,14 +68,16 @@ public class TAdminAuditServiceImpl extends ServiceImpl<TAdminAuditMapper, TAdmi
                     state = "审核失败";
                 }
                 String finalState = state;
-
-                final PubNotify pubNotify = new PubNotify() {{
-                    setThing2(new WxEntity(messageVO.getSendText()));
-                    setThing1(new WxEntity(one.getName()));
-                    setTime3(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(one.getGmtCreate())));
-                    setPhrase4(new WxEntity(finalState));
-                }};
-                final Map<String, Object> notifyBody = wxUtil.builderPub(openId, pubNotify);
+                final PubNotify pubNotify = new PubNotify();
+                if(flag) {
+                    pubNotify.setThing2(new WxEntity(one.getName()));
+                } else{
+                    pubNotify.setThing2(new WxEntity(one1.getName()));
+                }
+                pubNotify.setPhrase3(new WxEntity(finalState));
+                pubNotify.setDate4(new WxEntity(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+                pubNotify.setThing5(new WxEntity(messageVO.getSendText()));
+                final Map<String, Object> notifyBody = wxUtil.buildWxMes(openId, pubNotify, checkResTemplateId);
                 wxUtil.postSubMes(accessToken, notifyBody);
             } catch (MessagingException e) {
                 e.printStackTrace();

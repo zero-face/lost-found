@@ -71,6 +71,7 @@ public class WxUtil {
     }
 
     public String postSubMes(String token, Map<String, Object> maps) {
+        log.info("开始在微信推送消息消息");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("?access_token=" + token);
         final HttpEntity httpEntity = new HttpEntity(maps);
@@ -89,13 +90,18 @@ public class WxUtil {
         }
     }
 
-    public Map<String, Object> builderPub(String openid, PubNotify entity) {
+    // 发布成功模版：8S3jsiyoDbdXfiXCJ6bd66Xk1j8dzWZ_dNKGPk_N2dI
+    // 咨询回复模版：c8ji8CcuH4fCxaVYZnpSl8KR6uPLFyNKZvbnCrKamP8
+    // 审核结果通知模版：7q5Qurvb1mHHTURQ6GwwVwYSvKfB7iDwLZdZ92c8R6I
+    public Map<String, Object> buildWxMes(String openid, PubNotify entity, String templateId) {
         Map<String, Object> maps= new HashMap<>();
         maps.put("touser", openid);
-        maps.put("template_id", "8S3jsiyoDbdXfiXCJ6bd66Xk1j8dzWZ_dNKGPk_N2dI");
+        maps.put("template_id", templateId);
         maps.put("page", "pages/community/community");
         maps.put("miniprogram_state", "trial");
         maps.put("data", entity);
         return maps;
     }
+
+
 }
