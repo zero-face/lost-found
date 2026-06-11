@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+// 失物招领系统启动入口
 @SpringBootApplication
 //@Import({cn.arros.plugin.core.StartPlug.class})
 @MapperScan(basePackages = {"com.example.lostfound.dao"})
